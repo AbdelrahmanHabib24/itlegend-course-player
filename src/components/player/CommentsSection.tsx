@@ -34,7 +34,7 @@ export const CommentsSection: React.FC<CommentsSectionProps> = ({
       aria-labelledby="comments-heading"
       className="my-8 scroll-mt-24"
     >
-      {/* Title matching Figma directly on background */}
+      {/* Title  */}
       <div className="mb-6">
         <h2
           id="comments-heading"
@@ -44,7 +44,7 @@ export const CommentsSection: React.FC<CommentsSectionProps> = ({
         </h2>
       </div>
 
-      {/* Comments List matching Figma */}
+      {/* Comments List  */}
       <div className="space-y-5 mb-8">
         {comments.map((comment, index) => (
           <div key={comment.id}>
@@ -82,7 +82,7 @@ export const CommentsSection: React.FC<CommentsSectionProps> = ({
         ))}
       </div>
 
-      {/* Add Comment Form matching Figma */}
+      {/* Add Comment  */}
       <form onSubmit={handleSubmit} className="mt-4">
         <label htmlFor="comment-input" className="sr-only">
           Write a comment

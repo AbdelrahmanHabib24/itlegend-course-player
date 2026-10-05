@@ -37,7 +37,7 @@ export const CourseCard: React.FC<CourseCardProps> = ({ course }) => {
               Completed
             </span>
           ) : isStarted ? (
-            <span className="px-2.5 py-1 rounded-md text-xs font-semibold bg-[#20B486] text-white flex items-center gap-1 shadow-xs">
+            <span className="px-2.5 py-1 rounded-md text-xs font-semibold bg-accent text-white flex items-center gap-1 shadow-xs">
               <Play className="w-3 h-3 fill-current" />
               In Progress
             </span>
@@ -68,7 +68,7 @@ export const CourseCard: React.FC<CourseCardProps> = ({ course }) => {
           </div>
 
           {/* Title */}
-          <h2 className="font-bold text-base text-slate-900 line-clamp-2 leading-snug group-hover:text-[#20B486] transition-colors mb-2">
+          <h2 className="font-bold text-base text-slate-900 line-clamp-2 leading-snug group-hover:text-accent transition-colors mb-2">
             <Link href={`/courses/${course.slug}`}>{course.title}</Link>
           </h2>
 
@@ -103,7 +103,7 @@ export const CourseCard: React.FC<CourseCardProps> = ({ course }) => {
             </div>
             <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
               <div
-                className="h-full bg-[#20B486] rounded-full transition-all duration-300"
+                className="h-full bg-accent rounded-full transition-all duration-300"
                 style={{ width: `${course.progress}%` }}
               />
             </div>
@@ -114,7 +114,7 @@ export const CourseCard: React.FC<CourseCardProps> = ({ course }) => {
             href={`/courses/${course.slug}`}
             className={`w-full py-2.5 px-4 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 transition-all ${
               isStarted
-                ? 'bg-[#20B486] hover:bg-[#1A9B73] text-white shadow-xs hover:shadow-sm'
+                ? 'bg-accent hover:bg-[#1A9B73] text-white shadow-xs hover:shadow-sm'
                 : 'bg-slate-900 hover:bg-slate-800 text-white shadow-xs'
             }`}
           >

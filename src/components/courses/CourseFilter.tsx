@@ -31,7 +31,7 @@ export const CourseFilter: React.FC<CourseFilterProps> = ({
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder="Search by course name or instructor..."
-          className="w-full pl-10 pr-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-[#20B486] focus:bg-white transition-colors text-slate-800 placeholder:text-slate-400"
+          className="w-full pl-10 pr-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-accent focus:bg-white transition-colors text-slate-800 placeholder:text-slate-400"
         />
       </div>
 
@@ -42,7 +42,7 @@ export const CourseFilter: React.FC<CourseFilterProps> = ({
           onClick={() => onSelectCategory('All')}
           className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
             selectedCategory === 'All'
-              ? 'bg-[#20B486] text-white shadow-xs'
+              ? 'bg-accent text-white shadow-xs'
               : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
           }`}
         >
@@ -55,7 +55,7 @@ export const CourseFilter: React.FC<CourseFilterProps> = ({
             onClick={() => onSelectCategory(cat)}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
               selectedCategory === cat
-                ? 'bg-[#20B486] text-white shadow-xs'
+                ? 'bg-accent text-white shadow-xs'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
           >
@@ -67,7 +67,7 @@ export const CourseFilter: React.FC<CourseFilterProps> = ({
         <select
           value={selectedStatus}
           onChange={(e) => onSelectStatus(e.target.value)}
-          className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200 focus:outline-none focus:border-[#20B486] cursor-pointer"
+          className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200 focus:outline-none focus:border-accent cursor-pointer"
         >
           <option value="all">All Progress Status</option>
           <option value="in-progress">In Progress</option>

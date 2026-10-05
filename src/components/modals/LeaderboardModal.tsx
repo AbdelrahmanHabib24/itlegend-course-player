@@ -1,10 +1,10 @@
-'use strict';
-'use client';
+"use strict";
+"use client";
 
-import React from 'react';
-import { X, Trophy } from 'lucide-react';
-import { LEADERBOARD_USERS } from '@/data/leaderboardData';
-import { getMentorQuoteForProgress } from '@/data/mentorQuotes';
+import React from "react";
+import { X, Trophy } from "lucide-react";
+import { LEADERBOARD_USERS } from "@/data/leaderboardData";
+import { getMentorQuoteForProgress } from "@/data/mentorQuotes";
 
 interface LeaderboardModalProps {
   isOpen: boolean;
@@ -35,8 +35,12 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
               <Trophy className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-slate-900">Student Leaderboard</h2>
-              <p className="text-[11px] text-slate-500">Top learners by completed lessons & quiz points</p>
+              <h2 className="text-base font-bold text-slate-900">
+                Student Leaderboard
+              </h2>
+              <p className="text-[11px] text-slate-500">
+                Top learners by completed lessons & quiz points
+              </p>
             </div>
           </div>
 
@@ -51,21 +55,22 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
         </div>
 
         {/* Motivational Message Area (Eng. Ali Shaheen) — Compact & Professional */}
-        <div className="mb-4 p-3 rounded-xl bg-slate-50 border border-slate-200/80 shrink-0" dir="rtl">
+        <div
+          className="mb-4 p-3 rounded-xl bg-slate-50 border border-slate-200/80 shrink-0"
+          dir="rtl"
+        >
           <div className="flex items-center justify-between gap-2 mb-1.5">
             <div className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#20B486]" />
-              <span className="text-xs font-semibold text-slate-900">رسالة تشجيعية من م. علي شاهين</span>
+              <span className="text-xs font-semibold text-slate-900">
+                رسالة تشجيعية من م. علي شاهين
+              </span>
             </div>
             <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-white text-emerald-800 border border-emerald-200/60 shadow-2xs">
               {mentorQuote.levelName}
             </span>
           </div>
           <p className="text-xs text-slate-700 leading-relaxed font-normal">
-            &ldquo;{mentorQuote.quote}&rdquo;{' '}
-            <span className="inline-block mr-1">
-              {mentorQuote.emoji}
-            </span>
+            &ldquo;{mentorQuote.quote}&rdquo;{" "}
           </p>
         </div>
 
@@ -79,8 +84,8 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
                 key={user.rank}
                 className={`p-2.5 sm:p-3 rounded-xl border flex items-center justify-between gap-3 transition-colors ${
                   isCurrentUser
-                    ? 'bg-emerald-50/70 border-emerald-300 ring-1 ring-emerald-200/50'
-                    : 'bg-white border-slate-100 hover:bg-slate-50'
+                    ? "bg-emerald-50/70 border-emerald-300 ring-1 ring-emerald-200/50"
+                    : "bg-white border-slate-100 hover:bg-slate-50"
                 }`}
               >
                 {/* Rank & User */}
@@ -88,12 +93,12 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
                   <div
                     className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ${
                       user.rank === 1
-                        ? 'bg-amber-400 text-slate-950 shadow-2xs'
+                        ? "bg-amber-400 text-slate-950 shadow-2xs"
                         : user.rank === 2
-                        ? 'bg-slate-200 text-slate-800'
-                        : user.rank === 3
-                        ? 'bg-amber-700/80 text-white'
-                        : 'bg-slate-100 text-slate-500'
+                          ? "bg-slate-200 text-slate-800"
+                          : user.rank === 3
+                            ? "bg-amber-700/80 text-white"
+                            : "bg-slate-100 text-slate-500"
                     }`}
                   >
                     {user.rank}
@@ -109,7 +114,7 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
                     <div className="flex items-center gap-1.5">
                       <p
                         className={`text-xs font-bold truncate ${
-                          isCurrentUser ? 'text-emerald-800' : 'text-slate-800'
+                          isCurrentUser ? "text-emerald-800" : "text-slate-800"
                         }`}
                       >
                         {user.name}
@@ -118,7 +123,9 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
                     <p className="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
                       <span>{user.completedLessons} Lessons</span>
                       <span>•</span>
-                      <span className="text-amber-600 font-medium">{user.badge}</span>
+                      <span className="text-amber-600 font-medium">
+                        {user.badge}
+                      </span>
                     </p>
                   </div>
                 </div>
@@ -132,17 +139,6 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
               </div>
             );
           })}
-        </div>
-
-        {/* Footer */}
-        <div className="pt-4 mt-3 border-t border-slate-100 shrink-0 text-center">
-          <button
-            type="button"
-            onClick={onClose}
-            className="w-full py-2.5 rounded-lg text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-white transition-colors cursor-pointer"
-          >
-            Close Leaderboard
-          </button>
         </div>
       </div>
     </div>

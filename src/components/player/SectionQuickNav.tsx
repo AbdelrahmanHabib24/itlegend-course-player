@@ -11,16 +11,6 @@ interface SectionQuickNavProps {
   onOpenLeaderboard?: () => void;
 }
 
-/**
- * Section 06 — Course Player Quick Actions
- * Preserves the exact visual structure:
- * 4 circular outline buttons with light border, generous spacing, and divider below.
- * Strictly implements the 4 annotated functional actions:
- * 1. Curriculum / Course Content (smooth-scroll to #curriculum)
- * 2. Comments (smooth-scroll to #comments)
- * 3. Ask Question (opens Ask Question modal with auto-saved localStorage draft)
- * 4. Leaderboard (opens Leaderboard modal)
- */
 export const SectionQuickNav: React.FC<SectionQuickNavProps> = ({
   onScrollToCurriculum,
   onScrollToComments,

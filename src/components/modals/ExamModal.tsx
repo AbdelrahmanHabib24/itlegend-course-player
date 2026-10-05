@@ -49,7 +49,7 @@ export const ExamModal: React.FC<ExamModalProps> = ({
     >
       <div className="relative w-full max-w-[420px] bg-white rounded-2xl overflow-hidden shadow-2xl border border-slate-100 flex flex-col animate-slide-up">
         {/* Blue Header matching Figma exactly (#3D5CFF) */}
-        <div className="bg-[#3D5CFF] text-white px-5 pt-5 pb-6">
+        <div className="bg-exam text-white px-5 pt-5 pb-6">
           <div className="flex items-center justify-between mb-4">
             {/* Back button */}
             <button
@@ -81,7 +81,7 @@ export const ExamModal: React.FC<ExamModalProps> = ({
                   onClick={() => goToQuestion(idx)}
                   className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all cursor-pointer ${
                     isActive
-                      ? 'bg-white text-[#3D5CFF] shadow-sm scale-110'
+                      ? 'bg-white text-exam shadow-sm scale-110'
                       : isAnswered
                       ? 'bg-white/40 text-white'
                       : 'bg-white/20 text-white/80 hover:bg-white/30'
@@ -123,14 +123,14 @@ export const ExamModal: React.FC<ExamModalProps> = ({
                             onClick={() => selectOption(currentQuestion.id, option.id)}
                         className={`w-full p-3 rounded-xl border text-left flex items-center gap-3 transition-all cursor-pointer ${
                           isSelected
-                            ? 'bg-[#3D5CFF] text-white border-[#3D5CFF] shadow-sm font-semibold'
+                            ? 'bg-exam text-white border-exam shadow-sm font-semibold'
                             : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
                         }`}
                       >
                         <span
                           className={`w-6 h-6 rounded-lg text-xs font-bold flex items-center justify-center shrink-0 border ${
                             isSelected
-                              ? 'bg-white text-[#3D5CFF] border-white'
+                              ? 'bg-white text-exam border-white'
                               : 'bg-slate-100 text-slate-500 border-slate-200'
                           }`}
                         >
@@ -160,7 +160,7 @@ export const ExamModal: React.FC<ExamModalProps> = ({
                   <button
                     type="button"
                     onClick={submitExam}
-                    className="px-5 py-2 rounded-lg text-xs font-bold bg-[#3D5CFF] hover:bg-blue-700 text-white shadow-xs transition-all cursor-pointer"
+                    className="px-5 py-2 rounded-lg text-xs font-bold bg-exam hover:bg-blue-700 text-white shadow-xs transition-all cursor-pointer"
                   >
                     Submit Exam
                   </button>
@@ -168,7 +168,7 @@ export const ExamModal: React.FC<ExamModalProps> = ({
                   <button
                     type="button"
                     onClick={nextQuestion}
-                    className="px-5 py-2 rounded-lg text-xs font-bold bg-[#3D5CFF] hover:bg-blue-700 text-white shadow-xs transition-all cursor-pointer"
+                    className="px-5 py-2 rounded-lg text-xs font-bold bg-exam hover:bg-blue-700 text-white shadow-xs transition-all cursor-pointer"
                   >
                     Next Question
                   </button>
@@ -178,7 +178,7 @@ export const ExamModal: React.FC<ExamModalProps> = ({
           ) : (
             /* Results Screen */
             <div className="py-6 flex flex-col items-center text-center">
-              <div className="w-14 h-14 rounded-full bg-emerald-100 text-[#20B486] flex items-center justify-center mb-3">
+              <div className="w-14 h-14 rounded-full bg-emerald-100 text-accent flex items-center justify-center mb-3">
                 <Trophy className="w-7 h-7" />
               </div>
               <h3 className="text-lg font-bold text-slate-900 mb-1">
@@ -189,7 +189,7 @@ export const ExamModal: React.FC<ExamModalProps> = ({
               </p>
 
               <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 w-full mb-6">
-                <div className="text-2xl font-black text-[#20B486]">
+                <div className="text-2xl font-black text-accent">
                   {score} / {totalQuestions}
                 </div>
                 <div className="text-xs text-slate-500 font-medium mt-1">
@@ -200,7 +200,7 @@ export const ExamModal: React.FC<ExamModalProps> = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="w-full py-2.5 rounded-lg text-xs font-semibold bg-[#20B486] hover:bg-[#1A9B73] text-white shadow-xs transition-colors cursor-pointer"
+                className="w-full py-2.5 rounded-lg text-xs font-semibold bg-accent hover:bg-[#1A9B73] text-white shadow-xs transition-colors cursor-pointer"
               >
                 Close & Return to Course
               </button>

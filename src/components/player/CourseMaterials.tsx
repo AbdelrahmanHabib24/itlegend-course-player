@@ -25,7 +25,6 @@ type MaterialRow = {
 
 export const CourseMaterials: React.FC<CourseMaterialsProps> = ({
   course,
-  onOpenPdfModal,
 }) => {
   const materialRows: MaterialRow[] = [
     {
@@ -99,7 +98,7 @@ export const CourseMaterials: React.FC<CourseMaterialsProps> = ({
         items-center
         justify-between
         border-b
-        border-[#E5E7EB]
+        border-border
         py-3
         ${isLast ? 'border-b-0' : ''}
       `}

@@ -68,22 +68,26 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
     setPlayerVolume(parseFloat(e.target.value));
   };
 
-  const toggleFullscreen = () => {
-    const el = containerRef.current;
-    if (!el) return;
+ const toggleFullscreen = () => {
+  const element = containerRef.current;
+  if (!element) return;
 
-    if (!document.fullscreenElement) {
-      if (el.requestFullscreen) {
-        el.requestFullscreen().catch(() => {});
-      } else {
-        // Fallback for Safari/iOS video element
-        const vid = videoRef.current as (HTMLVideoElement & { webkitEnterFullscreen?: () => void }) | null;
-        vid?.webkitEnterFullscreen?.();
-      }
-    } else {
-      document.exitFullscreen?.().catch(() => {});
-    }
-  };
+  if (document.fullscreenElement) {
+    document.exitFullscreen?.().catch(() => {});
+    return;
+  }
+
+  if (element.requestFullscreen) {
+    element.requestFullscreen().catch(() => {});
+    return;
+  }
+
+  const video = videoRef.current as
+    | (HTMLVideoElement & { webkitEnterFullscreen?: () => void })
+    | null;
+
+  video?.webkitEnterFullscreen?.();
+};
 
   useEffect(() => {
     const handleFsChange = () => {
@@ -96,20 +100,26 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   }, []);
 
 
-  const handleMouseMove = () => {
-    setShowControls(true);
-    if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
-    controlsTimeoutRef.current = setTimeout(() => {
-      if (isPlaying) setShowControls(false);
-    }, 2800);
-  };
+ const handleMouseMove = () => {
+  setShowControls(true);
+
+  if (controlsTimeoutRef.current) {
+    clearTimeout(controlsTimeoutRef.current);
+  }
+
+  controlsTimeoutRef.current = setTimeout(() => {
+    if (isPlaying) {
+      setShowControls(false);
+    }
+  }, 2800);
+};
 
   return (
     <div
       ref={containerRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={() => isPlaying && setShowControls(false)}
-      className="relative w-full aspect-video bg-[#0B1320] rounded-xl overflow-hidden shadow-md group select-none transition-all duration-300 mobile-sticky-video"
+      className="relative w-full aspect-video bg-video rounded-xl overflow-hidden shadow-md group select-none transition-all duration-300 mobile-sticky-video"
     >
       {/* Real HTML5 Video Element — no poster, visible upon playback */}
       <video
@@ -136,7 +146,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
       {!hasStartedPlaying && (
         <div
           onClick={togglePlay}
-          className="absolute inset-0 bg-[#0B1320] z-0 cursor-pointer overflow-hidden"
+          className="absolute inset-0 bg-video z-0 cursor-pointer overflow-hidden"
           aria-hidden="true"
         >
           {courseThumbnail && (
@@ -149,7 +159,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
         </div>
       )}
 
-      {/* Center Play Button — Pure White Circle with play icon matching Figma */}
+      {/* Center Play Button — Pure White Circle with play icon */}
       {!isPlaying && (
         <div
           onClick={togglePlay}
@@ -162,12 +172,12 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
             aria-label="Play video"
             className="w-18 h-18 sm:w-20 sm:h-20 rounded-full bg-white text-[#ED1D24] flex items-center justify-center shadow-xl hover:scale-105 transition-transform cursor-pointer border border-white/80"
           >
-            <Play className="w-7 h-7 sm:w-8 sm:h-8 fill-[#309255] text-[#309255] ml-1" />
+            <Play className="w-7 h-7 sm:w-8 sm:h-8 fill-primary text-primary ml-1" />
           </button>
         </div>
       )}
 
-      {/* Top Bar: Left "Course Overview" badge & Right viewers pill from Figma */}
+      {/* Top Bar: Left "Course Overview" badge & Right viewers pill  */}
       <div
         className={`absolute top-4 left-4 right-4 flex items-center justify-between text-white pointer-events-none transition-opacity duration-300 z-10 ${
           showControls || !isPlaying ? 'opacity-100' : 'opacity-0'
@@ -179,7 +189,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
           </span>
         </div>
 
-        {/* Viewers Pill matching Figma top-right */}
+        {/* Viewers Pill top-right */}
         <div className="bg-black/75 backdrop-blur-xs px-2.5 py-1 rounded-full border border-white/10 flex items-center gap-1.5 text-xs font-medium text-white/90">
           <Eye className="w-3.5 h-3.5 text-slate-300" />
           <span className="text-[11px] font-bold">3</span>
@@ -202,7 +212,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
             value={currentTime}
             onChange={handleSeek}
             aria-label="Video seek slider"
-            className="w-full h-1 bg-white/30 rounded-lg appearance-none cursor-pointer accent-[#309255] group-hover/scrub:h-1.5 transition-all"
+            className="w-full h-1 bg-white/30 rounded-lg appearance-none cursor-pointer accent-primary group-hover/scrub:h-1.5 transition-all"
           />
         </div>
 
@@ -214,7 +224,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
               type="button"
               onClick={togglePlay}
               aria-label={isPlaying ? 'Pause' : 'Play'}
-              className="p-1 hover:text-[#309255] transition-colors cursor-pointer"
+              className="p-1 hover:text-primary transition-colors cursor-pointer"
             >
               {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 fill-current" />}
             </button>
@@ -225,7 +235,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                 type="button"
                 onClick={toggleMute}
                 aria-label={isMuted ? 'Unmute' : 'Mute'}
-                className="p-1 hover:text-[#309255] transition-colors cursor-pointer"
+                className="p-1 hover:text-primary transition-colors cursor-pointer"
               >
                 {isMuted || volume === 0 ? (
                   <VolumeX className="w-5 h-5 text-red-400" />
@@ -241,7 +251,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                 value={isMuted ? 0 : volume}
                 onChange={handleVolumeChange}
                 aria-label="Volume slider"
-                className="w-14 sm:w-18 h-1 bg-white/30 rounded appearance-none cursor-pointer accent-[#309255] hidden sm:inline-block"
+                className="w-14 sm:w-18 h-1 bg-white/30 rounded appearance-none cursor-pointer accent-primary hidden sm:inline-block"
               />
             </div>
 
@@ -259,7 +269,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
               title={isWideMode ? 'Exit Wide View' : 'Wide / Theater Mode'}
               aria-label="Toggle Theater View"
               className={`p-1.5 rounded-md hover:bg-white/10 transition-colors hidden md:flex items-center gap-1.5 cursor-pointer ${
-                isWideMode ? 'text-[#309255] bg-white/10' : 'text-slate-300'
+                isWideMode ? 'text-primary bg-white/10' : 'text-slate-300'
               }`}
             >
               <Columns className="w-4 h-4" />
@@ -273,7 +283,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
               type="button"
               onClick={toggleFullscreen}
               aria-label={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
-              className="p-1.5 rounded-md hover:text-[#309255] hover:bg-white/10 transition-colors cursor-pointer"
+              className="p-1.5 rounded-md hover:text-primary hover:bg-white/10 transition-colors cursor-pointer"
             >
               {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
             </button>

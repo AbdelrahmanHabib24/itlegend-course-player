@@ -1,7 +1,7 @@
-"use strict";
-"use client";
+'use strict';
+'use client';
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   ChevronDown,
   ChevronUp,
@@ -11,8 +11,8 @@ import {
   Minus,
   CheckCircle2,
   Play,
-} from "lucide-react";
-import { CurriculumSection, LessonItem } from "@/types/course";
+} from 'lucide-react';
+import { CurriculumSection, LessonItem } from '@/types/course';
 
 interface CurriculumSidebarProps {
   curriculum: CurriculumSection[];
@@ -20,7 +20,7 @@ interface CurriculumSidebarProps {
   progressPercentage: number;
   onSelectLesson: (lesson: LessonItem) => void;
   onOpenExamModal?: (lesson: LessonItem) => void;
-  onOpenPdfModal?: (lesson: LessonItem) => void;
+  onOpenPdfModal?: () => void;
 }
 
 export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
@@ -31,7 +31,7 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
   onOpenExamModal,
   onOpenPdfModal,
 }) => {
-  // First two sections open by default, and ensure active section is open
+  // First two sections open by default
   const [openSections, setOpenSections] = useState<Record<string, boolean>>(() => {
     const initial: Record<string, boolean> = {};
     curriculum.forEach((sec, idx) => {
@@ -40,25 +40,17 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
     return initial;
   });
 
-  // Ensure sections for current course and currentLessonId are open
+  // When currentLessonId changes, ensure its parent section is open
   useEffect(() => {
-    setOpenSections((prev) => {
-      const next = { ...prev };
-      curriculum.forEach((sec, idx) => {
-        if (next[sec.id] === undefined) {
-          next[sec.id] = idx < 2;
-        }
-      });
-      if (currentLessonId) {
-        const parentSection = curriculum.find((sec) =>
-          sec.lessons.some((l) => l.id === currentLessonId)
-        );
-        if (parentSection) {
-          next[parentSection.id] = true;
-        }
-      }
-      return next;
-    });
+    if (!currentLessonId) return;
+    const parentSection = curriculum.find((sec) =>
+      sec.lessons.some((l) => l.id === currentLessonId)
+    );
+    if (parentSection) {
+      setOpenSections((prev) =>
+        prev[parentSection.id] ? prev : { ...prev, [parentSection.id]: true }
+      );
+    }
   }, [currentLessonId, curriculum]);
 
   const [animatedProgress, setAnimatedProgress] = useState<number>(0);
@@ -77,22 +69,12 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
     }));
   };
 
-  const handleLessonClick = (lesson: LessonItem) => {
-    onSelectLesson(lesson);
-    if (lesson.type === "exam" && onOpenExamModal) {
-      onOpenExamModal(lesson);
-    } else if (lesson.type === "pdf" && onOpenPdfModal) {
-      onOpenPdfModal(lesson);
-    }
-  };
-
   return (
     <aside
-      id="curriculum"
       aria-labelledby="curriculum-heading"
       className="w-full scroll-mt-24"
     >
-      {/* Title matching Figma on page background */}
+      {/* Title */}
       <h2
         id="curriculum-heading"
         className="text-xl sm:text-2xl font-bold text-slate-900 mb-6 tracking-tight"
@@ -126,7 +108,7 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
                   text-[14px]
                   font-normal
                   leading-none
-                  text-[#485293]
+                  text-marker
                 "
               >
                 You
@@ -140,9 +122,10 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
                   block
                   h-0
                   w-0
-                  border-l-[4.5px]
-                  border-r-[4.5px]
-                  border-t-[6px]
+                  self-center
+                  border-l-[4px]
+                  border-r-[4px]
+                  border-t-[5px]
                   border-l-transparent
                   border-r-transparent
                   border-t-[#C8C8C8]
@@ -160,7 +143,7 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
                 w-full
                 overflow-hidden
                 rounded-full
-                bg-[#E6E6E6]
+                bg-track
               "
               role="progressbar"
               aria-valuemin={0}
@@ -172,7 +155,7 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
                 className="
                   h-full
                   rounded-full
-                  bg-[#6ABD8A]
+                  bg-progress
                   transition-[width]
                   duration-700
                   ease-out
@@ -194,7 +177,7 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
               text-[15px]
               font-normal
               leading-none
-              text-[#485293]
+              text-marker
               transition-[left]
               duration-700
               ease-out
@@ -208,7 +191,7 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
         </div>
       </div>
 
-      {/* Accordion Cards List matching Figma */}
+      {/* Accordion Cards List  */}
       <div className="space-y-5">
         {curriculum.map((section) => {
           const isOpen = openSections[section.id] ?? false;
@@ -222,11 +205,7 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
           return (
             <div
               key={section.id}
-              className={`bg-white rounded-lg border overflow-hidden shadow-2xs transition-colors ${
-                isCurrentSection
-                  ? "border-emerald-300/80 ring-1 ring-emerald-100"
-                  : "border-slate-200/90"
-              }`}
+              className="bg-white rounded-md border border-slate-200/90 overflow-hidden shadow-2xs transition-colors"
             >
               {/* Card Header Button */}
               <button
@@ -244,11 +223,11 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
                       <span className="hidden lg:inline">{section.week}</span>
                     </h3>
                     {isSectionCompleted ? (
-                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#309255] bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/60">
+                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/60">
                         <CheckCircle2 className="w-3 h-3" /> Completed
                       </span>
                     ) : isCurrentSection ? (
-                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#309255] bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/60">
+                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/60">
                         <Play className="w-2.5 h-2.5 fill-current" /> Current Week
                       </span>
                     ) : null}
@@ -278,7 +257,7 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
               </button>
 
               {/* Separator under header if open */}
-              {isOpen && <div className="mx-5 border-t border-[#E5E7EB]" />}
+              {isOpen && <div className="mx-5 border-t border-border" />}
 
               {/* Lesson Items inside Section */}
               {isOpen && (
@@ -287,49 +266,48 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
                     const isLast = idx === section.lessons.length - 1;
                     const isCurrent = lesson.id === currentLessonId;
                     const badgeQuestions =
-                      lesson.type === "exam" && lesson.examData
+                      lesson.type === 'exam' && lesson.examData
                         ? `${lesson.examData.questions.length} QUESTION${
-                            lesson.examData.questions.length === 1 ? "" : "S"
+                            lesson.examData.questions.length === 1 ? '' : 'S'
                           }`
                         : lesson.badgeQuestions;
                     const badgeDuration =
-                      lesson.type === "exam" && lesson.examData
+                      lesson.type === 'exam' && lesson.examData
                         ? `${Math.round(
                             lesson.examData.durationSeconds / 60
                           )} MINUTES`
                         : lesson.badgeDuration;
 
                     return (
-                      <div
+                      <button
                         key={lesson.id}
-                        id={`curriculum-lesson-${lesson.id}`}
-                        role="button"
-                        tabIndex={0}
-                        onClick={() => handleLessonClick(lesson)}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" || e.key === " ") {
-                            e.preventDefault();
-                            handleLessonClick(lesson);
+                        type="button"
+                        onClick={() => {
+                          onSelectLesson(lesson);
+                          if (lesson.type === 'exam') {
+                            onOpenExamModal?.(lesson);
+                          } else if (lesson.type === 'pdf') {
+                            onOpenPdfModal?.();
                           }
                         }}
-                        className={`px-5 transition-colors cursor-pointer group ${
+                        className={`w-full text-left px-5 transition-colors cursor-pointer group ${
                           isCurrent
-                            ? "bg-slate-50/80 font-semibold"
-                            : "hover:bg-slate-50/50 font-normal"
+                            ? 'bg-slate-50/80 font-semibold'
+                            : 'hover:bg-slate-50/50 font-normal'
                         }`}
                       >
                         <div
                           className={`py-3.5 flex items-center justify-between gap-3 text-sm ${
-                            isLast ? "" : "border-b border-[#E5E7EB]"
+                            isLast ? '' : 'border-b border-border'
                           }`}
                         >
-                          {/* Left: Indicator icon + Lesson Title */}
+                          {/* Left:  Lesson Title */}
                           <div className="flex items-center gap-3 min-w-0 flex-1">
                             {lesson.completed ? (
-                              <CheckCircle2 className="w-4 h-4 shrink-0 text-[#309255]" />
+                              <CheckCircle2 className="w-4 h-4 shrink-0 text-primary" />
                             ) : isCurrent ? (
-                              <div className="w-4 h-4 rounded-full bg-[#309255] text-white flex items-center justify-center shrink-0 shadow-2xs">
-                                <Play className="w-2.5 h-2.5 fill-current ml-0.5" />
+                              <div className="w-4 h-4 rounded-full bg-primary text-white flex items-center justify-center shrink-0 shadow-2xs">
+                                <Play className="w-2.5 h-2.5 fill-current" />
                               </div>
                             ) : (
                               <FileText
@@ -339,30 +317,30 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
                             <span
                               className={`min-w-0 whitespace-normal break-words text-sm leading-5 ${
                                 isCurrent
-                                  ? "font-semibold text-slate-900"
+                                  ? 'font-semibold text-slate-900'
                                   : lesson.completed
-                                  ? "text-slate-800"
-                                  : "text-slate-600"
+                                  ? 'text-slate-800'
+                                  : 'text-slate-600'
                               }`}
                             >
                               {lesson.title}
                             </span>
                           </div>
 
-                          {/* Right: Badges or Lock — vertical layout matching user reference */}
+                          {/* Right: Badges or Lock */}
                           <div className="flex shrink-0 flex-col items-end justify-center gap-1">
                             {badgeQuestions && (
                               <span
                                 className="
-          inline-flex items-center justify-center
-          rounded-md
-          bg-[#E8F5F0]
-          px-2 py-0.5
-          text-[10px] font-semibold leading-none
-          tracking-tight
-          text-[#43B494]
-          whitespace-nowrap
-        "
+                                  inline-flex items-center justify-center
+                                  rounded-md
+                                  bg-[#E8F5F0]
+                                  px-2 py-0.5
+                                  text-[10px] font-semibold leading-none
+                                  tracking-tight
+                                  text-[#43B494]
+                                  whitespace-nowrap
+                                "
                               >
                                 {badgeQuestions}
                               </span>
@@ -371,15 +349,15 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
                             {badgeDuration && (
                               <span
                                 className="
-          inline-flex items-center justify-center
-          rounded-md
-          bg-[#FCECEE]
-          px-2 py-0.5
-          text-[10px] font-semibold leading-none
-          tracking-tight
-          text-[#E47782]
-          whitespace-nowrap
-        "
+                                  inline-flex items-center justify-center
+                                  rounded-md
+                                  bg-[#FCECEE]
+                                  px-2 py-0.5
+                                  text-[10px] font-semibold leading-none
+                                  tracking-tight
+                                  text-[#E47782]
+                                  whitespace-nowrap
+                                "
                               >
                                 {badgeDuration}
                               </span>
@@ -393,7 +371,7 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
                             )}
                           </div>
                         </div>
-                      </div>
+                      </button>
                     );
                   })}
                 </div>

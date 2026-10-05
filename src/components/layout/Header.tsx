@@ -21,7 +21,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenLeaderboard }) => {
               <span className="font-bold text-[17px] leading-tight text-slate-900 tracking-tight">
                 ITLegend
               </span>
-              <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-emerald-50 text-[#309255] border border-emerald-200/80">
+              <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-emerald-50 text-primary border border-emerald-200/80">
                 Academy
               </span>
             </div>
@@ -35,7 +35,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenLeaderboard }) => {
         <nav aria-label="Main Navigation" className="hidden lg:flex items-center gap-2">
           <Link
             href="/"
-            className="px-3.5 py-2 rounded-lg text-sm font-medium text-slate-700 hover:text-[#309255] hover:bg-slate-50 transition-colors flex items-center gap-2"
+            className="px-3.5 py-2 rounded-lg text-sm font-medium text-slate-700 hover:text-primary hover:bg-slate-50 transition-colors flex items-center gap-2"
           >
             <BookOpen className="w-4 h-4 text-slate-400" />
             Courses Catalog
@@ -75,7 +75,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenLeaderboard }) => {
           <Link
             href="/"
             onClick={() => setMobileMenuOpen(false)}
-            className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-[#309255] transition-colors"
+            className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-primary transition-colors"
           >
             <BookOpen className="w-4 h-4 text-slate-400" />
             Courses Catalog

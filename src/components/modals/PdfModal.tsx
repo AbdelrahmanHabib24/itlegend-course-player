@@ -1,7 +1,7 @@
 'use strict';
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { X, Download, ZoomIn, ZoomOut, FileText, ChevronLeft, ChevronRight } from 'lucide-react';
 import { PdfContent } from '@/types/course';
 
@@ -28,15 +28,16 @@ export const PdfModal: React.FC<PdfModalProps> = ({
   const [zoomLevel, setZoomLevel] = useState<number>(100);
   const totalPages = 12;
 
-  // Reset page to 1 on opening a PDF document
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
+
+  // Mark PDF as completed when opened and reset page to 1
   useEffect(() => {
     if (isOpen) {
       setCurrentPage(1);
-      if (totalPages <= 1) {
-        onComplete?.();
-      }
+      onCompleteRef.current?.();
     }
-  }, [isOpen, pdfUrl, totalPages, onComplete]);
+  }, [isOpen, pdfUrl]);
 
   if (!isOpen) return null;
 
@@ -82,7 +83,7 @@ export const PdfModal: React.FC<PdfModalProps> = ({
                 onClick={handlePrevPage}
                 disabled={currentPage === 1}
                 aria-label="Previous page"
-                className="p-0.5 hover:text-[#20B486] disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                className="p-0.5 hover:text-accent disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
               >
                 <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </button>
@@ -94,7 +95,7 @@ export const PdfModal: React.FC<PdfModalProps> = ({
                 onClick={handleNextPage}
                 disabled={currentPage === totalPages}
                 aria-label="Next page"
-                className="p-0.5 hover:text-[#20B486] disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                className="p-0.5 hover:text-accent disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
               >
                 <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </button>
@@ -106,7 +107,7 @@ export const PdfModal: React.FC<PdfModalProps> = ({
                 type="button"
                 onClick={() => setZoomLevel((z) => Math.max(z - 15, 70))}
                 aria-label="Zoom out"
-                className="p-0.5 hover:text-[#20B486] cursor-pointer"
+                className="p-0.5 hover:text-accent cursor-pointer"
               >
                 <ZoomOut className="w-3.5 h-3.5" />
               </button>
@@ -115,7 +116,7 @@ export const PdfModal: React.FC<PdfModalProps> = ({
                 type="button"
                 onClick={() => setZoomLevel((z) => Math.min(z + 15, 150))}
                 aria-label="Zoom in"
-                className="p-0.5 hover:text-[#20B486] cursor-pointer"
+                className="p-0.5 hover:text-accent cursor-pointer"
               >
                 <ZoomIn className="w-3.5 h-3.5" />
               </button>
@@ -125,7 +126,7 @@ export const PdfModal: React.FC<PdfModalProps> = ({
             <a
               href={pdfUrl}
               download
-              className="p-1.5 rounded-md bg-slate-800 hover:bg-[#20B486] hover:text-white transition-colors cursor-pointer text-slate-300 shrink-0"
+              className="p-1.5 rounded-md bg-slate-800 hover:bg-accent hover:text-white transition-colors cursor-pointer text-slate-300 shrink-0"
               title="Download PDF"
             >
               <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -146,8 +147,8 @@ export const PdfModal: React.FC<PdfModalProps> = ({
         {/* Document Content Simulation */}
         <div className="flex-1 overflow-auto p-4 sm:p-8 flex justify-center bg-slate-200">
           <div
-            style={{ transform: `scale(${zoomLevel / 100})`, transformOrigin: 'top center' }}
-            className="w-full max-w-[700px] bg-white min-h-[900px] rounded-lg shadow-xl p-8 sm:p-12 text-slate-800 transition-transform duration-200 flex flex-col justify-between"
+            style={{ transform: `scale(${zoomLevel / 100})` }}
+            className="w-full max-w-[700px] bg-white min-h-[900px] rounded-lg shadow-xl p-8 sm:p-12 text-slate-800 transition-transform duration-200 flex flex-col justify-between origin-top"
           >
             <div>
               {/* Header */}

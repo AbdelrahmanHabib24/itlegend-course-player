@@ -1,110 +1,157 @@
-'use strict';
+"use strict";
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
-import { Course } from '@/types/course';
+import { useState, useEffect, useMemo, useCallback } from "react";
+import { Course } from "@/types/course";
+
+const SLUG_ALIASES: Record<string, string> = {
+  "ui-ux-design-systems": "uiux-design",
+  "uiux-design": "ui-ux-design-systems",
+  "typescript-enterprise": "typescript",
+  typescript: "typescript-enterprise",
+  "web-performance-vitals": "web-performance",
+  "web-performance": "web-performance-vitals",
+  "fullstack-mastery": "full-stack",
+  "full-stack": "fullstack-mastery",
+};
+
+export function getStoredCompletedLessonIds(slug: string): string[] | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  try {
+    let stored = localStorage.getItem(`itlegend_progress_${slug}`);
+    if (!stored && SLUG_ALIASES[slug]) {
+      stored = localStorage.getItem(`itlegend_progress_${SLUG_ALIASES[slug]}`);
+    }
+
+    if (!stored) {
+      return null;
+    }
+
+    const parsed: unknown = JSON.parse(stored);
+    return Array.isArray(parsed) && parsed.every((id) => typeof id === "string")
+      ? parsed
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+export function getCurriculumCompletedLessonIds(course: Course): Set<string> {
+  const ids = new Set<string>();
+  course.curriculum.forEach((sec) => {
+    sec.lessons.forEach((lesson) => {
+      if (lesson.completed) {
+        ids.add(lesson.id);
+      }
+    });
+  });
+  return ids;
+}
+
+export function getInitialCompletedLessonIds(course: Course): Set<string> {
+  const ids = getCurriculumCompletedLessonIds(course);
+
+  // Hydrate from localStorage if available on client
+  const stored = getStoredCompletedLessonIds(course.slug);
+  if (stored && stored.length > 0) {
+    stored.forEach((id) => ids.add(id));
+  }
+
+  return ids;
+}
+
+export function calculateCourseProgress(
+  course: Course,
+  completedLessonIds: Set<string> | string[],
+): number {
+  const completedSet =
+    completedLessonIds instanceof Set
+      ? completedLessonIds
+      : new Set(completedLessonIds);
+
+  const totalLessons = course.curriculum.reduce(
+    (acc, sec) => acc + sec.lessons.length,
+    0,
+  );
+
+  if (totalLessons === 0) return 0;
+
+  let completedCount = 0;
+  course.curriculum.forEach((sec) => {
+    sec.lessons.forEach((l) => {
+      if (completedSet.has(l.id)) {
+        completedCount++;
+      }
+    });
+  });
+
+  if (completedCount >= totalLessons) return 100;
+  return Math.min(100, Math.round((completedCount / totalLessons) * 100));
+}
+
+export function getCourseStatus(
+  progress: number,
+): "completed" | "in-progress" | "not-started" {
+  if (progress === 100) return "completed";
+  if (progress > 0) return "in-progress";
+  return "not-started";
+}
+
+export function syncCourseWithProgress(course: Course): Course {
+  const completedIds = getInitialCompletedLessonIds(course);
+  const progress = calculateCourseProgress(course, completedIds);
+  const status = getCourseStatus(progress);
+
+  const enrichedCurriculum = course.curriculum.map((sec) => ({
+    ...sec,
+    lessons: sec.lessons.map((l) => ({
+      ...l,
+      completed: completedIds.has(l.id),
+    })),
+  }));
+
+  return {
+    ...course,
+    progress,
+    status,
+    curriculum: enrichedCurriculum,
+  };
+}
 
 export function useCourseProgress(course: Course) {
-  // Initial completed lesson IDs seeded from course curriculum
-  const initialCompletedIds = useMemo(() => {
-    const ids = new Set<string>();
-    course.curriculum.forEach((sec) => {
-      sec.lessons.forEach((lesson) => {
-        if (lesson.completed) {
-          ids.add(lesson.id);
-        }
-      });
-    });
-    return ids;
-  }, [course.curriculum]);
+  const [completedLessonIds, setCompletedLessonIds] = useState<Set<string>>(
+    () => getCurriculumCompletedLessonIds(course),
+  );
 
-  const [completedLessonIds, setCompletedLessonIds] = useState<Set<string>>(initialCompletedIds);
-
-  // Restore saved progress or seed from curriculum on mount / slug change
   useEffect(() => {
-    const ids = new Set<string>();
-    course.curriculum.forEach((sec) => {
-      sec.lessons.forEach((lesson) => {
-        if (lesson.completed) {
-          ids.add(lesson.id);
-        }
-      });
-    });
+    setCompletedLessonIds(getInitialCompletedLessonIds(course));
+  }, [course.slug]);
 
-    if (typeof window !== 'undefined') {
-      try {
-        const saved = localStorage.getItem(`itlegend_progress_${course.slug}`);
-        if (saved) {
-          const parsed: string[] = JSON.parse(saved);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            parsed.forEach((id) => ids.add(id));
-          }
-        }
-      } catch {
-        // ignore storage errors
-      }
-    }
+  const progress = calculateCourseProgress(course, completedLessonIds);
 
-    setCompletedLessonIds(ids);
-  }, [course.slug, course.curriculum]);
-
-  // Persist completed lessons to localStorage whenever state updates
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    try {
-      if (completedLessonIds.size > 0) {
-        localStorage.setItem(
-          `itlegend_progress_${course.slug}`,
-          JSON.stringify(Array.from(completedLessonIds))
-        );
-      }
-    } catch {
-      // ignore storage errors
-    }
-  }, [completedLessonIds, course.slug]);
-
-  // Total count of all lessons across all curriculum sections
-  const totalLessons = useMemo(() => {
-    return course.curriculum.reduce((acc, sec) => acc + sec.lessons.length, 0);
-  }, [course.curriculum]);
-
-  // Single source of truth: progress = completedLessonIds.size / totalLessons * 100
-  const progress = useMemo(() => {
-    if (totalLessons === 0) return 0;
-    return Math.min(100, Math.round((completedLessonIds.size / totalLessons) * 100));
-  }, [completedLessonIds, totalLessons]);
-
-  // Action to mark a lesson as completed
-  const completeLesson = useCallback((lessonId: string) => {
+  const completeLesson = (lessonId: string) => {
     setCompletedLessonIds((prev) => {
       if (prev.has(lessonId)) return prev;
+
       const next = new Set(prev);
       next.add(lessonId);
+
+      try {
+        localStorage.setItem(
+          `itlegend_progress_${course.slug}`,
+          JSON.stringify([...next]),
+        );
+      } catch {}
+
       return next;
     });
-  }, []);
-
-  // Helper to test if a specific lesson is completed
-  const isLessonCompleted = useCallback(
-    (lessonId: string) => completedLessonIds.has(lessonId),
-    [completedLessonIds]
-  );
-
-  // Helper to test if an entire section is completed
-  const isSectionCompleted = useCallback(
-    (sectionId: string) => {
-      const section = course.curriculum.find((s) => s.id === sectionId);
-      if (!section || section.lessons.length === 0) return false;
-      return section.lessons.every((l) => completedLessonIds.has(l.id));
-    },
-    [course.curriculum, completedLessonIds]
-  );
+  };
 
   return {
     completedLessonIds,
     progress,
-    totalLessons,
     completeLesson,
-    isLessonCompleted,
-    isSectionCompleted,
   };
 }

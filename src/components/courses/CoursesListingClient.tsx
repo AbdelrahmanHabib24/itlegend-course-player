@@ -5,7 +5,6 @@ import { BookOpen } from "lucide-react";
 
 import { Course } from "@/types/course";
 import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
 import { CourseCard } from "@/components/courses/CourseCard";
 import { CourseFilter } from "@/components/courses/CourseFilter";
 import { LeaderboardModal } from "@/components/modals/LeaderboardModal";
@@ -14,80 +13,10 @@ interface CoursesListingClientProps {
   initialCourses: Course[];
 }
 
-type CourseStatus = "completed" | "in-progress" | "not-started";
+import { syncCourseWithProgress } from "@/hooks/useCourseProgress";
 
-const getCourseLessonsCount = (course: Course): number =>
-  course.curriculum.flatMap((section) => section.lessons).length;
-
-const getStoredCompletedLessonIds = (slug: string): string[] | null => {
-  if (typeof window === "undefined") {
-    return null;
-  }
-
-  try {
-    const storedProgress = localStorage.getItem(
-      `itlegend_progress_${slug}`,
-    );
-
-    if (!storedProgress) {
-      return null;
-    }
-
-    const parsedProgress: unknown = JSON.parse(storedProgress);
-
-    return Array.isArray(parsedProgress) &&
-      parsedProgress.every((id) => typeof id === "string")
-      ? parsedProgress
-      : null;
-  } catch {
-    return null;
-  }
-};
-
-const getCourseProgress = (
-  course: Course,
-  completedLessonIds: string[],
-): number => {
-  const totalLessons = getCourseLessonsCount(course);
-
-  if (totalLessons === 0) {
-    return 0;
-  }
-
-  return Math.min(
-    100,
-    Math.round((completedLessonIds.length / totalLessons) * 100),
-  );
-};
-
-const getCourseStatus = (progress: number): CourseStatus => {
-  if (progress === 100) {
-    return "completed";
-  }
-
-  if (progress > 0) {
-    return "in-progress";
-  }
-
-  return "not-started";
-};
-
-const syncCourseProgress = (courses: Course[]): Course[] =>
-  courses.map((course) => {
-    const completedLessonIds = getStoredCompletedLessonIds(course.slug);
-
-    if (!completedLessonIds) {
-      return course;
-    }
-
-    const progress = getCourseProgress(course, completedLessonIds);
-
-    return {
-      ...course,
-      progress,
-      status: getCourseStatus(progress),
-    };
-  });
+const syncAllCourses = (courses: Course[]): Course[] =>
+  courses.map((course) => syncCourseWithProgress(course));
 
 const matchesSearchQuery = (course: Course, query: string): boolean => {
   if (!query.trim()) {
@@ -149,7 +78,18 @@ export const CoursesListingClient = ({
   const [isLeaderboardOpen, setIsLeaderboardOpen] = useState(false);
 
   useEffect(() => {
-    setCourses(syncCourseProgress(initialCourses));
+    setCourses(syncAllCourses(initialCourses));
+
+    const handleSync = () => {
+      setCourses(syncAllCourses(initialCourses));
+    };
+
+    window.addEventListener("storage", handleSync);
+    window.addEventListener("focus", handleSync);
+    return () => {
+      window.removeEventListener("storage", handleSync);
+      window.removeEventListener("focus", handleSync);
+    };
   }, [initialCourses]);
 
   const categories = useMemo(
@@ -172,7 +112,7 @@ export const CoursesListingClient = ({
   );
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex flex-col text-slate-800">
+    <div className="min-h-screen bg-background flex flex-col text-slate-800">
       <Header onOpenLeaderboard={() => setIsLeaderboardOpen(true)} />
 
       <main className="flex-1 player-container w-full py-8">
@@ -229,8 +169,6 @@ export const CoursesListingClient = ({
           </div>
         )}
       </main>
-
-      <Footer />
 
       <LeaderboardModal
         isOpen={isLeaderboardOpen}
