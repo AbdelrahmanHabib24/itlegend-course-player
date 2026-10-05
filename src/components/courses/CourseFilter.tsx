@@ -35,12 +35,12 @@ export const CourseFilter: React.FC<CourseFilterProps> = ({
         />
       </div>
 
-      {/* Filter Tabs */}
-      <div className="flex flex-wrap items-center gap-2">
+      {/* Filter Tabs & Status - Single inline row */}
+      <div className="flex items-center gap-2 overflow-x-auto min-w-0 max-w-full [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden py-0.5">
         <button
           type="button"
           onClick={() => onSelectCategory('All')}
-          className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
+          className={`shrink-0 whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
             selectedCategory === 'All'
               ? 'bg-accent text-white shadow-xs'
               : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
@@ -53,7 +53,7 @@ export const CourseFilter: React.FC<CourseFilterProps> = ({
             key={cat}
             type="button"
             onClick={() => onSelectCategory(cat)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
+            className={`shrink-0 whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
               selectedCategory === cat
                 ? 'bg-accent text-white shadow-xs'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
@@ -63,11 +63,11 @@ export const CourseFilter: React.FC<CourseFilterProps> = ({
           </button>
         ))}
 
-        {/* Status Dropdown */}
+        {/* Status Dropdown - stays inline with category buttons */}
         <select
           value={selectedStatus}
           onChange={(e) => onSelectStatus(e.target.value)}
-          className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200 focus:outline-none focus:border-accent cursor-pointer"
+          className="shrink-0 whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200 focus:outline-none focus:border-accent cursor-pointer"
         >
           <option value="all">All Progress Status</option>
           <option value="in-progress">In Progress</option>

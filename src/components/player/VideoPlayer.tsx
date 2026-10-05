@@ -118,8 +118,13 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
     <div
       ref={containerRef}
       onMouseMove={handleMouseMove}
+      onTouchStart={handleMouseMove}
       onMouseLeave={() => isPlaying && setShowControls(false)}
-      className="relative w-full aspect-video bg-video rounded-xl overflow-hidden shadow-md group select-none transition-all duration-300 mobile-sticky-video"
+      className={`relative w-full bg-video overflow-hidden shadow-md group select-none transition-all duration-300 ${
+        isFullscreen
+          ? 'h-full w-full rounded-none aspect-auto'
+          : 'aspect-video rounded-xl mobile-sticky-video'
+      }`}
     >
       {/* Real HTML5 Video Element — no poster, visible upon playback */}
       <video
@@ -137,9 +142,9 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
         onEnded={handleEnded}
         onClick={togglePlay}
         playsInline
-        className={`w-full h-full object-cover cursor-pointer transition-opacity duration-150 ${
-          hasStartedPlaying ? 'opacity-100' : 'opacity-0'
-        }`}
+        className={`w-full h-full cursor-pointer transition-opacity duration-150 ${
+          isFullscreen ? 'object-contain' : 'object-cover'
+        } ${hasStartedPlaying ? 'opacity-100' : 'opacity-0'}`}
       />
 
       {/* Course poster / thumbnail before playback starts */}
@@ -153,7 +158,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
             <img
               src={courseThumbnail}
               alt=""
-              className="w-full h-full object-cover"
+              className={`w-full h-full ${isFullscreen ? 'object-contain' : 'object-cover'}`}
             />
           )}
         </div>
@@ -177,20 +182,22 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
         </div>
       )}
 
-      {/* Top Bar: Left "Course Overview" badge & Right viewers pill  */}
+      {/* Top Bar: Left lesson title badge & Right viewers pill */}
       <div
-        className={`absolute top-4 left-4 right-4 flex items-center justify-between text-white pointer-events-none transition-opacity duration-300 z-10 ${
-          showControls || !isPlaying ? 'opacity-100' : 'opacity-0'
-        }`}
+        className={`absolute inset-x-0 top-0 flex items-center justify-between text-white pointer-events-none transition-opacity duration-300 z-10 ${
+          isFullscreen
+            ? 'p-4 sm:p-6 bg-gradient-to-b from-black/80 via-black/30 to-transparent'
+            : 'p-3 sm:p-4'
+        } ${showControls || !isPlaying ? 'opacity-100' : 'opacity-0'}`}
       >
-        <div className="bg-black/60 backdrop-blur-xs px-3 py-1.5 rounded-lg border border-white/10 flex items-center gap-2">
-          <span className="text-xs font-semibold text-slate-100">
+        <div className="bg-black/60 backdrop-blur-xs px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-white/10 flex items-center gap-2 max-w-[70%] sm:max-w-md min-w-0">
+          <span className="text-[11px] sm:text-xs font-semibold text-slate-100 truncate">
             {currentLesson.title || 'Course Overview'}
           </span>
         </div>
 
         {/* Viewers Pill top-right */}
-        <div className="bg-black/75 backdrop-blur-xs px-2.5 py-1 rounded-full border border-white/10 flex items-center gap-1.5 text-xs font-medium text-white/90">
+        <div className="bg-black/75 backdrop-blur-xs px-2.5 py-1 rounded-full border border-white/10 flex items-center gap-1.5 text-xs font-medium text-white/90 shrink-0">
           <Eye className="w-3.5 h-3.5 text-slate-300" />
           <span className="text-[11px] font-bold">3</span>
         </div>
@@ -199,8 +206,8 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
       {/* Player Controls Bar at bottom */}
       <div
         className={`absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent px-3 sm:px-4 py-2.5 sm:py-3 transition-opacity duration-300 flex flex-col gap-2 z-20 ${
-          showControls || !isPlaying ? 'opacity-100' : 'opacity-0'
-        }`}
+          isFullscreen ? 'pb-6 sm:pb-4' : ''
+        } ${showControls || !isPlaying ? 'opacity-100' : 'opacity-0'}`}
       >
         {/* Progress scrub bar */}
         <div className="relative w-full flex items-center group/scrub cursor-pointer">
