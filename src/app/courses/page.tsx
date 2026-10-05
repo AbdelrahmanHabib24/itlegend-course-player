@@ -9,6 +9,6 @@ export const metadata: Metadata = {
     'Browse our comprehensive catalog of digital skills courses and continue your learning journey.',
 };
 
-export default function HomePage() {
+export default function CoursesPage() {
   return <CoursesListingClient initialCourses={COURSES} />;
 }
