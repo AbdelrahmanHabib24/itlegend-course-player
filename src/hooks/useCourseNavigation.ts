@@ -26,7 +26,6 @@ export function useCourseNavigation({
   const initialLesson = useMemo<LessonItem | null>(() => {
     if (!allLessons || allLessons.length === 0) return null;
 
-    // 1. Explicitly stored/current lesson for this course
     if (explicitCurrentLessonId) {
       const explicit = allLessons.find((l) => l.id === explicitCurrentLessonId);
       if (explicit) return explicit;
@@ -37,21 +36,20 @@ export function useCourseNavigation({
       return currentMarked;
     }
 
-    // 2. First uncompleted lesson
     const uncompletedLesson = allLessons.find((l) => !completedLessonIds.has(l.id));
     if (uncompletedLesson) {
       return uncompletedLesson;
     }
 
-    // 3. First available lesson (never force final lesson on completed course)
     return allLessons[0];
   }, [allLessons, completedLessonIds, explicitCurrentLessonId]);
 
   const [currentLesson, setCurrentLesson] = useState<LessonItem | null>(initialLesson);
 
+  const courseSlug = course.slug;
   useEffect(() => {
     setCurrentLesson(initialLesson);
-  }, [initialLesson]);
+  }, [courseSlug]);
 
   const currentIndex = useMemo(() => {
     if (!currentLesson) return -1;

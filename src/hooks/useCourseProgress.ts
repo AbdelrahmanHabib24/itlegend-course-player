@@ -121,8 +121,9 @@ export function syncCourseWithProgress(course: Course): Course {
 }
 
 export function useCourseProgress(course: Course) {
+
   const [completedLessonIds, setCompletedLessonIds] = useState<Set<string>>(
-    () => getCurriculumCompletedLessonIds(course),
+    () => getInitialCompletedLessonIds(course),
   );
 
   useEffect(() => {
