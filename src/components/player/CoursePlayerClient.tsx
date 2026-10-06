@@ -27,12 +27,10 @@ export const CoursePlayerClient: React.FC<CoursePlayerClientProps> = ({
   const [comments, setComments] = useState<CommentItem[]>(initialCourse.comments);
   const [isWideMode, setIsWideMode] = useState<boolean>(false);
 
-  // Sync course with persisted completion data on client mount / course slug change
   useEffect(() => {
     setCourse(syncCourseWithProgress(initialCourse));
   }, [initialCourse.slug, initialCourse]);
 
-  // Load persisted course-specific comments on mount / slug change
   useEffect(() => {
     try {
       const stored = localStorage.getItem(`itlegend_comments_${initialCourse.slug}`);
@@ -44,7 +42,6 @@ export const CoursePlayerClient: React.FC<CoursePlayerClientProps> = ({
         }
       }
     } catch {
-      // Fallback to initial comments on storage or parse errors
     }
     setComments(initialCourse.comments);
   }, [initialCourse.slug, initialCourse.comments]);
@@ -69,7 +66,6 @@ export const CoursePlayerClient: React.FC<CoursePlayerClientProps> = ({
   const { completedLessonIds, progress: courseProgress, completeLesson } =
     useCourseProgress(course);
 
-  // Complete lesson wrapper that updates progress state & course curriculum
   const handleCompleteLesson = React.useCallback((lessonId: string) => {
     completeLesson(lessonId);
     setCourse((prev) => syncCourseWithProgress(prev));
@@ -154,7 +150,7 @@ export const CoursePlayerClient: React.FC<CoursePlayerClientProps> = ({
     });
   };
 
-  // Add Comment handler with course-specific localStorage persistence
+  // Add Comment handler 
   const handleAddComment = (content: string) => {
     const newComment: CommentItem = {
       id: `c-user-${Date.now()}`,
@@ -187,7 +183,6 @@ export const CoursePlayerClient: React.FC<CoursePlayerClientProps> = ({
     }
   };
 
-  // Common UI blocks to eliminate duplication between Wide and Standard layouts
   const videoPlayerNode = (
     <div
       ref={playerRef}
