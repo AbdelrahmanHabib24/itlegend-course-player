@@ -216,8 +216,14 @@ export const CoursePlayerClient: React.FC<CoursePlayerClientProps> = ({
             </div>
 
             <h3 className="text-base sm:text-xl font-bold text-white mb-2 line-clamp-2">
-              {currentLesson.pdfTitle || currentLesson.title}
+              {currentLesson.title}
             </h3>
+
+            {currentLesson.pdfTitle && currentLesson.pdfTitle !== currentLesson.title && (
+              <p className="text-xs text-slate-400 mb-2 font-medium">
+                {currentLesson.pdfTitle}
+              </p>
+            )}
 
             {currentLesson.description && (
               <p className="text-xs sm:text-sm text-slate-300 mb-5 line-clamp-2 max-w-md">
