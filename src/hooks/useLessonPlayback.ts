@@ -22,7 +22,7 @@ export function useLessonPlayback({
   const [hasStartedPlaying, setHasStartedPlaying] = useState<boolean>(false);
 
   // Video source: dynamic from selected lesson with fallback
-  const videoSrc = currentLesson?.videoUrl || '/videos/seo-analytics.mp4';
+  const videoSrc = currentLesson?.videoUrl ;
 
   // Reset video state when switching lessons
   useEffect(() => {
