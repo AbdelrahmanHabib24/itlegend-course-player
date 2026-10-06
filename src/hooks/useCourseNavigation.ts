@@ -8,12 +8,14 @@ const EMPTY_COMPLETED_LESSONS = new Set<string>();
 interface UseCourseNavigationProps {
   course: Course;
   completedLessonIds?: Set<string>;
+  currentLessonId?: string;
   onLessonComplete?: (lessonId: string) => void;
 }
 
 export function useCourseNavigation({
   course,
   completedLessonIds = EMPTY_COMPLETED_LESSONS,
+  currentLessonId: explicitCurrentLessonId,
   onLessonComplete,
 }: UseCourseNavigationProps) {
   const allLessons = useMemo(() => {
@@ -21,18 +23,29 @@ export function useCourseNavigation({
     return course.curriculum.flatMap((sec) => sec.lessons);
   }, [course?.curriculum]);
 
-
   const initialLesson = useMemo<LessonItem | null>(() => {
     if (!allLessons || allLessons.length === 0) return null;
 
-    const uncompletedLesson = allLessons.find((l) => !completedLessonIds.has(l.id));
+    // 1. Explicitly stored/current lesson for this course
+    if (explicitCurrentLessonId) {
+      const explicit = allLessons.find((l) => l.id === explicitCurrentLessonId);
+      if (explicit) return explicit;
+    }
 
+    const currentMarked = allLessons.find((l) => l.isCurrent);
+    if (currentMarked) {
+      return currentMarked;
+    }
+
+    // 2. First uncompleted lesson
+    const uncompletedLesson = allLessons.find((l) => !completedLessonIds.has(l.id));
     if (uncompletedLesson) {
       return uncompletedLesson;
     }
 
-    return allLessons[allLessons.length - 1];
-  }, [allLessons, completedLessonIds]);
+    // 3. First available lesson (never force final lesson on completed course)
+    return allLessons[0];
+  }, [allLessons, completedLessonIds, explicitCurrentLessonId]);
 
   const [currentLesson, setCurrentLesson] = useState<LessonItem | null>(initialLesson);
 

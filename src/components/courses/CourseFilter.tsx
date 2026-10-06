@@ -1,6 +1,6 @@
 'use strict';
 import React from 'react';
-import { Search } from 'lucide-react';
+import { Search, ChevronDown } from 'lucide-react';
 
 interface CourseFilterProps {
   categories: string[];
@@ -67,19 +67,25 @@ export const CourseFilter: React.FC<CourseFilterProps> = ({
         ))}
 
         {/* Status Dropdown - stays inline with category buttons */}
-        <select
-          id="status-filter"
-          name="status"
-          value={selectedStatus}
-          onChange={(e) => onSelectStatus(e.target.value)}
-          aria-label="Filter courses by completion status"
-          className="shrink-0 whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200 focus:outline-none focus:border-accent cursor-pointer"
-        >
-          <option value="all">All Progress Status</option>
-          <option value="in-progress">In Progress</option>
-          <option value="completed">Completed</option>
-          <option value="not-started">Not Started</option>
-        </select>
+        <div className="relative shrink-0 inline-flex items-center">
+          <select
+            id="status-filter"
+            name="status"
+            value={selectedStatus}
+            onChange={(e) => onSelectStatus(e.target.value)}
+            aria-label="Filter courses by completion status"
+            className="appearance-none shrink-0 whitespace-nowrap pl-3 pr-7 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200 focus:outline-none focus:border-accent cursor-pointer transition-colors"
+          >
+            <option value="all">All Progress Status</option>
+            <option value="in-progress">In Progress</option>
+            <option value="completed">Completed</option>
+            <option value="not-started">Not Started</option>
+          </select>
+          <ChevronDown
+            className="w-3.5 h-3.5 text-slate-500 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none stroke-[1.75]"
+            aria-hidden="true"
+          />
+        </div>
       </div>
     </div>
   );
