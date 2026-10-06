@@ -80,10 +80,6 @@ export const Header: React.FC<HeaderProps> = ({ onOpenLeaderboard }) => {
             <BookOpen className="w-4 h-4 text-slate-400" />
             Courses Catalog
           </Link>
-
-          <div className="pt-2 border-t border-slate-100 flex items-center justify-between px-3">
-            <span className="text-xs text-slate-500">Status</span>
-          </div>
         </div>
       )}
     </header>

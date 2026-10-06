@@ -25,6 +25,7 @@ type MaterialRow = {
 
 export const CourseMaterials: React.FC<CourseMaterialsProps> = ({
   course,
+  onOpenPdfModal,
 }) => {
   const materialRows: MaterialRow[] = [
     {

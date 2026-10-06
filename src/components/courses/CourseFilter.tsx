@@ -28,8 +28,11 @@ export const CourseFilter: React.FC<CourseFilterProps> = ({
         <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
         <input
           type="text"
+          id="course-search"
+          name="search"
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
+          aria-label="Search courses by name or instructor"
           placeholder="Search by course name or instructor..."
           className="w-full pl-10 pr-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-accent focus:bg-white transition-colors text-slate-800 placeholder:text-slate-400"
         />
@@ -65,8 +68,11 @@ export const CourseFilter: React.FC<CourseFilterProps> = ({
 
         {/* Status Dropdown - stays inline with category buttons */}
         <select
+          id="status-filter"
+          name="status"
           value={selectedStatus}
           onChange={(e) => onSelectStatus(e.target.value)}
+          aria-label="Filter courses by completion status"
           className="shrink-0 whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200 focus:outline-none focus:border-accent cursor-pointer"
         >
           <option value="all">All Progress Status</option>

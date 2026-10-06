@@ -53,27 +53,27 @@ export const CourseCard: React.FC<CourseCardProps> = ({ course }) => {
       <div className="p-5 flex-1 flex flex-col justify-between">
         <div>
           {/* Instructor & Level */}
-          <div className="flex items-center justify-between text-xs text-slate-500 mb-2.5">
-            <div className="flex items-center gap-2">
+          <div className="flex items-center justify-between text-xs text-slate-500 mb-2.5 gap-2">
+            <div className="flex items-center gap-2 min-w-0">
               <img
                 src={course.instructor.avatar}
                 alt={course.instructor.name}
-                className="w-5 h-5 rounded-full object-cover border border-slate-200"
+                className="w-5 h-5 rounded-full object-cover border border-slate-200 shrink-0"
               />
-              <span className="font-medium text-slate-700">{course.instructor.name}</span>
+              <span className="font-medium text-slate-700 truncate max-w-[140px] sm:max-w-[170px]">{course.instructor.name}</span>
             </div>
-            <span className="font-medium text-slate-500 px-2 py-0.5 rounded-sm bg-slate-100 text-[11px]">
+            <span className="font-medium text-slate-500 px-2 py-0.5 rounded-sm bg-slate-100 text-[11px] shrink-0">
               {course.level}
             </span>
           </div>
 
           {/* Title */}
-          <h2 className="font-bold text-base text-slate-900 line-clamp-2 leading-snug group-hover:text-accent transition-colors mb-2">
+          <h2 className="font-bold text-base text-slate-900 line-clamp-2 leading-snug group-hover:text-accent transition-colors mb-2 break-words">
             <Link href={`/courses/${course.slug}`}>{course.title}</Link>
           </h2>
 
           {/* Description */}
-          <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed mb-4">
+          <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed mb-4 break-words">
             {course.shortDescription}
           </p>
         </div>

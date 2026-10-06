@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { LessonItem } from '@/types/course';
 
 interface UseLessonPlaybackProps {
-  currentLesson: LessonItem;
+  currentLesson: LessonItem | null;
   onLessonEnded?: () => void;
 }
 
@@ -22,7 +22,7 @@ export function useLessonPlayback({
   const [hasStartedPlaying, setHasStartedPlaying] = useState<boolean>(false);
 
   // Video source: dynamic from selected lesson with fallback
-  const videoSrc = currentLesson.videoUrl || '/videos/seo-analytics.mp4';
+  const videoSrc = currentLesson?.videoUrl || '/videos/seo-analytics.mp4';
 
   // Reset video state when switching lessons
   useEffect(() => {
@@ -33,7 +33,7 @@ export function useLessonPlayback({
       setHasStartedPlaying(false);
       videoRef.current.load();
     }
-  }, [currentLesson.id, currentLesson.videoUrl]);
+  }, [currentLesson?.id, currentLesson?.videoUrl]);
 
   const togglePlay = useCallback(() => {
     if (!videoRef.current) return;

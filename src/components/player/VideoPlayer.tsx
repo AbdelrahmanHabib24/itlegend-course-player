@@ -16,7 +16,7 @@ import { LessonItem } from '@/types/course';
 import { useLessonPlayback } from '@/hooks/useLessonPlayback';
 
 interface VideoPlayerProps {
-  currentLesson: LessonItem;
+  currentLesson: LessonItem | null;
   courseThumbnail?: string;
   isWideMode: boolean;
   onToggleWideMode: () => void;
@@ -128,7 +128,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
     >
       {/* Real HTML5 Video Element — no poster, visible upon playback */}
       <video
-        key={currentLesson.id}
+        key={currentLesson?.id ?? 'empty-video'}
         ref={videoRef}
         src={videoSrc}
         onTimeUpdate={handleTimeUpdate}
@@ -192,7 +192,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
       >
         <div className="bg-black/60 backdrop-blur-xs px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-white/10 flex items-center gap-2 max-w-[70%] sm:max-w-md min-w-0">
           <span className="text-[11px] sm:text-xs font-semibold text-slate-100 truncate">
-            {currentLesson.title || 'Course Overview'}
+            {currentLesson?.title || 'Course Overview'}
           </span>
         </div>
 

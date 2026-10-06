@@ -19,8 +19,8 @@ export const PdfModal: React.FC<PdfModalProps> = ({
   isOpen,
   onClose,
   onComplete,
-  pdfTitle = 'Course Syllabus & Reference Guide (PDF)',
-  pdfUrl = '/docs/seo-fundamentals.pdf',
+  pdfTitle = 'Course Reference Guide (PDF)',
+  pdfUrl = '',
   pdfContent,
   courseTitle,
 }) => {
@@ -31,7 +31,6 @@ export const PdfModal: React.FC<PdfModalProps> = ({
   const onCompleteRef = useRef(onComplete);
   onCompleteRef.current = onComplete;
 
-  // Mark PDF as completed when opened and reset page to 1
   useEffect(() => {
     if (isOpen) {
       setCurrentPage(1);
@@ -39,7 +38,7 @@ export const PdfModal: React.FC<PdfModalProps> = ({
     }
   }, [isOpen, pdfUrl]);
 
-  if (!isOpen) return null;
+  if (!isOpen || (!pdfUrl && !pdfContent)) return null;
 
   const handleNextPage = () => {
     if (currentPage < totalPages) {
@@ -124,7 +123,7 @@ export const PdfModal: React.FC<PdfModalProps> = ({
 
             {/* Download */}
             <a
-              href={pdfUrl}
+              href={pdfUrl || '#'}
               download
               className="p-1.5 rounded-md bg-slate-800 hover:bg-accent hover:text-white transition-colors cursor-pointer text-slate-300 shrink-0"
               title="Download PDF"

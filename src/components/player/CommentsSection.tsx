@@ -68,7 +68,7 @@ export const CommentsSection: React.FC<CommentsSectionProps> = ({
                 </time>
 
                 {/* Comment Content */}
-                <p className="text-sm text-slate-600 leading-relaxed mt-2.5">
+                <p className="text-sm text-slate-600 leading-relaxed mt-2.5 break-words whitespace-pre-line">
                   {comment.content}
                 </p>
               </div>

@@ -7,7 +7,7 @@ import { X, HelpCircle, ArrowRight, CheckCircle2 } from 'lucide-react';
 interface AskQuestionModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onQuestionSubmitted: (question: { subject: string; details: string }) => void;
+  onQuestionSubmitted?: (question: { subject: string; details: string }) => void;
 }
 
 export const AskQuestionModal: React.FC<AskQuestionModalProps> = ({
@@ -20,7 +20,6 @@ export const AskQuestionModal: React.FC<AskQuestionModalProps> = ({
   const [submitted, setSubmitted] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
 
-  // Handle auto-close timeout after submission with proper unmount cleanup
   useEffect(() => {
     if (!submitted) return;
     const timer = setTimeout(() => {
@@ -40,7 +39,7 @@ export const AskQuestionModal: React.FC<AskQuestionModalProps> = ({
       return;
     }
 
-    onQuestionSubmitted({
+    onQuestionSubmitted?.({
       subject: subject.trim() || 'General Question',
       details: details.trim(),
     });

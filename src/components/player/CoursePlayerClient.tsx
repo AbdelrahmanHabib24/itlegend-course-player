@@ -78,6 +78,7 @@ export const CoursePlayerClient: React.FC<CoursePlayerClientProps> = ({
   // Course navigation & curriculum orchestration
   const {
     currentLesson,
+    currentLessonId,
     allLessons,
     nextLesson,
     selectLesson,
@@ -89,33 +90,42 @@ export const CoursePlayerClient: React.FC<CoursePlayerClientProps> = ({
     onLessonComplete: handleCompleteLesson,
   });
 
-  // Resolve active/fallback modal lesson items
-  const activeExam =
-    activeExamLesson ||
-    (currentLesson.type === 'exam' ? currentLesson : allLessons.find((l) => l.type === 'exam')) ||
-    null;
-
-  const activePdf =
-    activePdfLesson ||
-    (currentLesson.type === 'pdf' ? currentLesson : allLessons.find((l) => l.type === 'pdf')) ||
-    null;
-
-  const handlePdfComplete = React.useCallback(() => {
-    if (activePdf) {
-      handleCompleteLesson(activePdf.id);
+  // Dedicated named modal open handlers (shared across all placements)
+  const handleOpenExam = (lesson: LessonItem) => {
+    if (lesson.type === 'exam') {
+      setActiveExamLesson(lesson);
+      setIsExamModalOpen(true);
     }
-  }, [activePdf, handleCompleteLesson]);
+  };
+
+  const handleOpenPdf = (lesson?: LessonItem) => {
+    const target =
+      lesson?.type === 'pdf'
+        ? lesson
+        : currentLesson?.type === 'pdf'
+        ? currentLesson
+        : allLessons.find((l) => l.type === 'pdf') || null;
+
+    if (target) {
+      setActivePdfLesson(target);
+      setIsPdfModalOpen(true);
+    }
+  };
+
+  const handlePdfComplete = () => {
+    if (activePdfLesson) {
+      handleCompleteLesson(activePdfLesson.id);
+    }
+  };
 
   // Lesson selection handler
   const handleSelectLesson = (lesson: LessonItem) => {
     selectLesson(lesson);
 
     if (lesson.type === 'exam') {
-      setActiveExamLesson(lesson);
-      setIsExamModalOpen(true);
+      handleOpenExam(lesson);
     } else if (lesson.type === 'pdf') {
-      setActivePdfLesson(lesson);
-      setIsPdfModalOpen(true);
+      handleOpenPdf(lesson);
     } else if (lesson.type === 'video') {
       playerRef.current?.scrollIntoView({
         behavior: 'smooth',
@@ -170,8 +180,8 @@ export const CoursePlayerClient: React.FC<CoursePlayerClientProps> = ({
 
   // Exam completion handler
   const handleExamComplete = () => {
-    if (!activeExam) return;
-    handleCompleteLesson(activeExam.id);
+    if (!activeExamLesson) return;
+    handleCompleteLesson(activeExamLesson.id);
     if (nextLesson) {
       selectLesson(nextLesson);
     }
@@ -181,7 +191,7 @@ export const CoursePlayerClient: React.FC<CoursePlayerClientProps> = ({
   const videoPlayerNode = (
     <div
       ref={playerRef}
-      className="order-1 sticky top-0 z-40 md:static bg-background -mx-4 px-4 py-2 sm:mx-0 sm:px-0 sm:py-0 scroll-mt-4"
+      className="order-1 sticky top-0 z-40 md:static bg-background py-2 sm:py-0 scroll-mt-4"
     >
       <VideoPlayer
         currentLesson={currentLesson}
@@ -205,7 +215,7 @@ export const CoursePlayerClient: React.FC<CoursePlayerClientProps> = ({
   const courseMaterialsNode = (
     <CourseMaterials
       course={course}
-      onOpenPdfModal={() => setIsPdfModalOpen(true)}
+      onOpenPdfModal={handleOpenPdf}
     />
   );
 
@@ -221,9 +231,11 @@ export const CoursePlayerClient: React.FC<CoursePlayerClientProps> = ({
   const curriculumSidebarNode = (
     <CurriculumSidebar
       curriculum={enrichedCurriculum}
-      currentLessonId={currentLesson.id}
+      currentLessonId={currentLessonId}
       progressPercentage={courseProgress}
       onSelectLesson={handleSelectLesson}
+      onOpenExamModal={handleOpenExam}
+      onOpenPdfModal={handleOpenPdf}
     />
   );
 
@@ -233,7 +245,7 @@ export const CoursePlayerClient: React.FC<CoursePlayerClientProps> = ({
         {/* Breadcrumb & Title */}
         <div className="mb-4 sm:mb-6">
           <Breadcrumb courseTitle={course.title} />
-          <h1 className="text-xl sm:text-2xl lg:text-[30px] font-extrabold text-slate-900 tracking-tight leading-tight mt-2">
+          <h1 className="text-xl sm:text-2xl lg:text-[30px] font-extrabold text-slate-900 tracking-tight leading-tight mt-2 break-words">
             {course.title}
           </h1>
         </div>
@@ -286,29 +298,34 @@ export const CoursePlayerClient: React.FC<CoursePlayerClientProps> = ({
       {/* Interactive Modals */}
       <ExamModal
         isOpen={isExamModalOpen}
-        onClose={() => setIsExamModalOpen(false)}
-        examData={activeExam?.examData}
+        onClose={() => {
+          setIsExamModalOpen(false);
+          setActiveExamLesson(null);
+        }}
+        examData={activeExamLesson?.examData}
         onExamComplete={handleExamComplete}
       />
 
       <PdfModal
-        isOpen={isPdfModalOpen}
-        onClose={() => setIsPdfModalOpen(false)}
+        isOpen={isPdfModalOpen && Boolean(activePdfLesson)}
+        onClose={() => {
+          setIsPdfModalOpen(false);
+          setActivePdfLesson(null);
+        }}
         onComplete={handlePdfComplete}
         pdfTitle={
-          activePdf?.pdfTitle ||
-          activePdf?.title ||
+          activePdfLesson?.pdfTitle ||
+          activePdfLesson?.title ||
           `${course.title} Reference Guide (PDF)`
         }
-        pdfUrl={activePdf?.pdfUrl || '/docs/seo-fundamentals.pdf'}
-        pdfContent={activePdf?.pdfContent}
+        pdfUrl={activePdfLesson?.pdfUrl}
+        pdfContent={activePdfLesson?.pdfContent}
         courseTitle={course.title}
       />
 
       <AskQuestionModal
         isOpen={isAskQuestionOpen}
         onClose={() => setIsAskQuestionOpen(false)}
-        onQuestionSubmitted={() => {}}
       />
 
       <LeaderboardModal

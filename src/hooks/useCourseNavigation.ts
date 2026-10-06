@@ -1,7 +1,9 @@
 'use strict';
 
-import { useState, useMemo, useCallback } from 'react';
-import { Course, LessonItem } from '@/types/course';
+import { useState, useMemo, useCallback, useEffect } from 'react';
+import { Course, LessonItem, CurriculumSection } from '@/types/course';
+
+const EMPTY_COMPLETED_LESSONS = new Set<string>();
 
 interface UseCourseNavigationProps {
   course: Course;
@@ -11,24 +13,39 @@ interface UseCourseNavigationProps {
 
 export function useCourseNavigation({
   course,
-  completedLessonIds = new Set(),
+  completedLessonIds = EMPTY_COMPLETED_LESSONS,
   onLessonComplete,
 }: UseCourseNavigationProps) {
-  // All lessons in sequential curriculum order
   const allLessons = useMemo(() => {
+    if (!course?.curriculum) return [];
     return course.curriculum.flatMap((sec) => sec.lessons);
-  }, [course.curriculum]);
+  }, [course?.curriculum]);
 
-  // Initial active lesson: first marked as isCurrent, or first available lesson
-  const initialLesson = useMemo(() => {
-    return allLessons.find((l) => l.isCurrent) || allLessons[0];
-  }, [allLessons]);
 
-  const [currentLesson, setCurrentLesson] = useState<LessonItem>(initialLesson);
+  const initialLesson = useMemo<LessonItem | null>(() => {
+    if (!allLessons || allLessons.length === 0) return null;
+
+    const uncompletedLesson = allLessons.find((l) => !completedLessonIds.has(l.id));
+
+    if (uncompletedLesson) {
+      return uncompletedLesson;
+    }
+
+    return allLessons[allLessons.length - 1];
+  }, [allLessons, completedLessonIds]);
+
+  const [currentLesson, setCurrentLesson] = useState<LessonItem | null>(initialLesson);
+
+  useEffect(() => {
+    setCurrentLesson(initialLesson);
+  }, [initialLesson]);
 
   const currentIndex = useMemo(() => {
+    if (!currentLesson) return -1;
     return allLessons.findIndex((l) => l.id === currentLesson.id);
-  }, [allLessons, currentLesson.id]);
+  }, [allLessons, currentLesson]);
+
+  const currentLessonId = currentLesson?.id ?? '';
 
   const nextLesson = useMemo(() => {
     if (currentIndex !== -1 && currentIndex < allLessons.length - 1) {
@@ -60,31 +77,31 @@ export function useCourseNavigation({
     }
   }, [previousLesson]);
 
-  // Orchestrates lesson transition on completion: marks current lesson completed and advances
   const handleLessonEnded = useCallback(() => {
+    if (!currentLesson) return;
     if (onLessonComplete) {
       onLessonComplete(currentLesson.id);
     }
     if (nextLesson) {
       setCurrentLesson(nextLesson);
     }
-  }, [currentLesson.id, nextLesson, onLessonComplete]);
+  }, [currentLesson, nextLesson, onLessonComplete]);
 
-  // Enriched curriculum with currentLesson and completed statuses
-  const enrichedCurriculum = useMemo(() => {
+  const enrichedCurriculum = useMemo<CurriculumSection[]>(() => {
+    if (!course?.curriculum) return [];
     return course.curriculum.map((sec) => ({
       ...sec,
       lessons: sec.lessons.map((l) => ({
         ...l,
-        isCurrent: l.id === currentLesson.id,
+        isCurrent: currentLesson ? l.id === currentLesson.id : false,
         completed: completedLessonIds.has(l.id),
       })),
     }));
-  }, [course.curriculum, currentLesson.id, completedLessonIds]);
+  }, [course?.curriculum, currentLesson, completedLessonIds]);
 
   return {
     currentLesson,
-    currentLessonId: currentLesson.id,
+    currentLessonId,
     allLessons,
     currentIndex,
     nextLesson,

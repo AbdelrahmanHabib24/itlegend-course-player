@@ -20,7 +20,7 @@ interface CurriculumSidebarProps {
   progressPercentage: number;
   onSelectLesson: (lesson: LessonItem) => void;
   onOpenExamModal?: (lesson: LessonItem) => void;
-  onOpenPdfModal?: () => void;
+  onOpenPdfModal?: (lesson: LessonItem) => void;
 }
 
 export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
@@ -31,7 +31,6 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
   onOpenExamModal,
   onOpenPdfModal,
 }) => {
-  // First two sections open by default
   const [openSections, setOpenSections] = useState<Record<string, boolean>>(() => {
     const initial: Record<string, boolean> = {};
     curriculum.forEach((sec, idx) => {
@@ -40,7 +39,6 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
     return initial;
   });
 
-  // When currentLessonId changes, ensure its parent section is open
   useEffect(() => {
     if (!currentLessonId) return;
     const parentSection = curriculum.find((sec) =>
@@ -192,7 +190,7 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
       </div>
 
       {/* Accordion Cards List  */}
-      <div className="space-y-5">
+      <div className="space-y-3.5 sm:space-y-4">
         {curriculum.map((section) => {
           const isOpen = openSections[section.id] ?? false;
           const isSectionCompleted =
@@ -205,59 +203,59 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
           return (
             <div
               key={section.id}
-              className="bg-white rounded-md border border-slate-200/90 overflow-hidden shadow-2xs transition-colors"
+              className="bg-white rounded-[2px] border border-[#EEEEEE] overflow-hidden shadow-none transition-colors"
             >
               {/* Card Header Button */}
               <button
                 type="button"
                 onClick={() => toggleSection(section.id)}
                 aria-expanded={isOpen}
-                className="w-full p-5 flex items-start justify-between text-left hover:bg-slate-50/60 transition-colors cursor-pointer"
+                className="w-full px-4.5 py-3.5 sm:px-5 sm:py-4 flex items-start justify-between text-left hover:bg-slate-50/40 transition-colors cursor-pointer"
               >
-                <div className="pr-3">
+                <div className="pr-3 flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="text-base font-bold text-slate-900 leading-snug">
+                    <h3 className="text-[14.5px] sm:text-[15px] font-semibold text-[#1F242F] leading-snug">
                       <span className="lg:hidden">
                         {section.mobileTitle || section.week}
                       </span>
                       <span className="hidden lg:inline">{section.week}</span>
                     </h3>
                     {isSectionCompleted ? (
-                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/60">
-                        <CheckCircle2 className="w-3 h-3" /> Completed
+                      <span className="inline-flex items-center gap-1 text-[10.5px] font-medium text-[#65A98A] bg-[#F2FAF8] border border-[#E0F0EB] px-2 py-0.5 rounded-[3px]">
+                        <CheckCircle2 className="w-3 h-3 text-[#65A98A] stroke-[1.75]" /> Completed
                       </span>
                     ) : isCurrentSection ? (
-                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/60">
+                      <span className="inline-flex items-center gap-1 text-[10.5px] font-medium text-[#65A98A] bg-[#F2FAF8] border border-[#E0F0EB] px-2 py-0.5 rounded-[3px]">
                         <Play className="w-2.5 h-2.5 fill-current" /> Current Week
                       </span>
                     ) : null}
                   </div>
-                  <p className="hidden lg:block text-xs text-slate-500 mt-1.5 leading-relaxed font-normal">
+                  <p className="hidden lg:block text-[12px] text-[#7A7D82] mt-1 leading-relaxed font-normal break-words">
                     {section.title}
                   </p>
                 </div>
-                <div className="text-slate-500 mt-1 shrink-0 font-medium">
+                <div className="text-[#9EA3AE] mt-0.5 shrink-0">
                   {/* Mobile +/- */}
                   <span className="lg:hidden">
                     {isOpen ? (
-                      <Minus className="w-4 h-4" />
+                      <Minus className="w-3.5 h-3.5 stroke-[1.5]" />
                     ) : (
-                      <Plus className="w-4 h-4" />
+                      <Plus className="w-3.5 h-3.5 stroke-[1.5]" />
                     )}
                   </span>
                   {/* Desktop Chevrons */}
                   <span className="hidden lg:inline">
                     {isOpen ? (
-                      <ChevronUp className="w-4 h-4 text-slate-400" />
+                      <ChevronUp className="w-3.5 h-3.5 stroke-[1.5] text-[#9EA3AE]" />
                     ) : (
-                      <ChevronDown className="w-4 h-4 text-slate-400" />
+                      <ChevronDown className="w-3.5 h-3.5 stroke-[1.5] text-[#9EA3AE]" />
                     )}
                   </span>
                 </div>
               </button>
 
               {/* Separator under header if open */}
-              {isOpen && <div className="mx-5 border-t border-border" />}
+              {isOpen && <div className="mx-4.5 sm:mx-5 border-t border-[#EEEEEE]" />}
 
               {/* Lesson Items inside Section */}
               {isOpen && (
@@ -287,40 +285,38 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
                           if (lesson.type === 'exam') {
                             onOpenExamModal?.(lesson);
                           } else if (lesson.type === 'pdf') {
-                            onOpenPdfModal?.();
+                            onOpenPdfModal?.(lesson);
                           }
                         }}
-                        className={`w-full text-left px-5 transition-colors cursor-pointer group ${
+                        className={`w-full text-left px-4.5 sm:px-5 transition-colors cursor-pointer group ${
                           isCurrent
-                            ? 'bg-slate-50/80 font-semibold'
-                            : 'hover:bg-slate-50/50 font-normal'
+                            ? 'bg-[#FAFAFA]'
+                            : 'hover:bg-[#F9FAFB]/70'
                         }`}
                       >
                         <div
-                          className={`py-3.5 flex items-center justify-between gap-3 text-sm ${
-                            isLast ? '' : 'border-b border-border'
+                          className={`py-2.5 sm:py-3 flex items-center justify-between gap-3 ${
+                            isLast ? '' : 'border-b border-[#EEEEEE]'
                           }`}
                         >
-                          {/* Left:  Lesson Title */}
-                          <div className="flex items-center gap-3 min-w-0 flex-1">
+                          {/* Left: Icon & Lesson Title */}
+                          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
                             {lesson.completed ? (
-                              <CheckCircle2 className="w-4 h-4 shrink-0 text-primary" />
+                              <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-[#65A98A] stroke-[1.75]" />
                             ) : isCurrent ? (
-                              <div className="w-4 h-4 rounded-full bg-primary text-white flex items-center justify-center shrink-0 shadow-2xs">
-                                <Play className="w-2.5 h-2.5 fill-current" />
+                              <div className="w-3.5 h-3.5 rounded-full bg-[#65A98A] text-white flex items-center justify-center shrink-0">
+                                <Play className="w-2 h-2 fill-current" />
                               </div>
                             ) : (
                               <FileText
-                                className="w-4 h-4 shrink-0 text-slate-400 group-hover:text-slate-600"
+                                className="w-3.5 h-3.5 shrink-0 text-[#9EA3AE] stroke-[1.5] group-hover:text-[#64748B]"
                               />
                             )}
                             <span
-                              className={`min-w-0 whitespace-normal break-words text-sm leading-5 ${
+                              className={`min-w-0 whitespace-normal break-words text-[13px] sm:text-[13.5px] leading-snug ${
                                 isCurrent
-                                  ? 'font-semibold text-slate-900'
-                                  : lesson.completed
-                                  ? 'text-slate-800'
-                                  : 'text-slate-600'
+                                  ? 'font-medium text-[#22252A]'
+                                  : 'font-normal text-[#3F4146]'
                               }`}
                             >
                               {lesson.title}
@@ -333,12 +329,12 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
                               <span
                                 className="
                                   inline-flex items-center justify-center
-                                  rounded-md
-                                  bg-[#E8F5F0]
-                                  px-2 py-0.5
-                                  text-[10px] font-semibold leading-none
+                                  rounded-[2px]
+                                  bg-[#F2FAF8]
+                                  px-1.5 py-0.5
+                                  text-[10px] font-medium leading-none
                                   tracking-tight
-                                  text-[#43B494]
+                                  text-[#65A98A]
                                   whitespace-nowrap
                                 "
                               >
@@ -350,12 +346,12 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
                               <span
                                 className="
                                   inline-flex items-center justify-center
-                                  rounded-md
-                                  bg-[#FCECEE]
-                                  px-2 py-0.5
-                                  text-[10px] font-semibold leading-none
+                                  rounded-[2px]
+                                  bg-[#FDF2F4]
+                                  px-1.5 py-0.5
+                                  text-[10px] font-medium leading-none
                                   tracking-tight
-                                  text-[#E47782]
+                                  text-[#D8727D]
                                   whitespace-nowrap
                                 "
                               >
@@ -365,7 +361,7 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
 
                             {!badgeQuestions && !badgeDuration && (
                               <Lock
-                                className="h-4 w-4 text-slate-300"
+                                className="h-3.5 w-3.5 text-[#C4C7CE] stroke-[1.5]"
                                 aria-hidden="true"
                               />
                             )}
