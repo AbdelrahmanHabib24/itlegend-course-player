@@ -66,7 +66,7 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
       [sectionId]: !prev[sectionId],
     }));
   };
-
+  
   return (
     <aside
       aria-labelledby="curriculum-heading"
