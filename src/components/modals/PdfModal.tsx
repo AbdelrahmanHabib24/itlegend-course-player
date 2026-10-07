@@ -11,6 +11,7 @@ interface PdfModalProps {
   onComplete?: () => void;
   pdfTitle?: string;
   pdfUrl?: string;
+  pdfPages?: number;
   pdfContent?: PdfContent;
   courseTitle?: string;
 }
@@ -21,12 +22,13 @@ export const PdfModal: React.FC<PdfModalProps> = ({
   onComplete,
   pdfTitle = 'Course Reference Guide (PDF)',
   pdfUrl = '',
+  pdfPages,
   pdfContent,
   courseTitle,
 }) => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [zoomLevel, setZoomLevel] = useState<number>(100);
-  const totalPages = 12;
+  const totalPages = Math.max(1, pdfPages || 1);
 
   const onCompleteRef = useRef(onComplete);
   onCompleteRef.current = onComplete;
@@ -36,7 +38,7 @@ export const PdfModal: React.FC<PdfModalProps> = ({
       setCurrentPage(1);
       onCompleteRef.current?.();
     }
-  }, [isOpen, pdfUrl]);
+  }, [isOpen, pdfUrl, pdfPages]);
 
   if (!isOpen || (!pdfUrl && !pdfContent)) return null;
 

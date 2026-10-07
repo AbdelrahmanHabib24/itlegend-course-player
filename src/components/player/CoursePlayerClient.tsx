@@ -369,6 +369,7 @@ export const CoursePlayerClient: React.FC<CoursePlayerClientProps> = ({
           `${course.title} Reference Guide (PDF)`
         }
         pdfUrl={activePdfLesson?.pdfUrl}
+        pdfPages={activePdfLesson?.pdfPages}
         pdfContent={activePdfLesson?.pdfContent}
         courseTitle={course.title}
       />

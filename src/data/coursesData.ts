@@ -837,7 +837,7 @@ export const COURSES: Course[] = [
             isCurrent: true,
             pdfUrl: '/docs/enterprise-typescript-patterns.pdf',
             pdfTitle: 'Enterprise TypeScript Patterns & Type Gymnastics Manual',
-            pdfPages: 18,
+            pdfPages: 12,
             description: 'Complete reference for mapped types, conditional infer keyword, branded types, and AST transformations.',
             pdfContent: {
               courseName: 'Enterprise TypeScript 5 • Advanced Architectural Patterns',
