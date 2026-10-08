@@ -177,7 +177,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
             aria-label="Play video"
             className="w-18 h-18 sm:w-20 sm:h-20 rounded-full bg-white flex items-center justify-center shadow-xl hover:scale-105 transition-transform cursor-pointer border border-white/80"
           >
-            <Play className="w-7 h-7 sm:w-8 sm:h-8 fill-[#ED1D24] text-[#ED1D24] ml-1" />
+            <Play className="w-7 h-7 sm:w-8 sm:h-8 fill-[var(--player-play-accent)] text-[var(--player-play-accent)] ml-1" />
           </button>
         </div>
       )}
@@ -219,14 +219,12 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
             value={currentTime}
             onChange={handleSeek}
             aria-label="Video seek slider"
-            style={{
-              background: `linear-gradient(to right, #FFFFFF ${
-                duration > 0 ? (currentTime / duration) * 100 : 0
-              }%, rgba(255, 255, 255, 0.25) ${
-                duration > 0 ? (currentTime / duration) * 100 : 0
-              }%)`,
-            }}
-            className="w-full h-1 bg-white/30 rounded-lg appearance-none cursor-pointer accent-white group-hover/scrub:h-1.5 transition-all"
+            style={
+              {
+                '--video-progress': `${duration > 0 ? (currentTime / duration) * 100 : 0}%`,
+              } as React.CSSProperties
+            }
+            className="player-progress-slider w-full h-1 bg-white/30 rounded-lg appearance-none cursor-pointer accent-white group-hover/scrub:h-1.5 transition-all"
           />
         </div>
 
@@ -252,7 +250,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                 className="p-1 text-white hover:text-white/80 transition-colors cursor-pointer"
               >
                 {isMuted || volume === 0 ? (
-                  <VolumeX className="w-5 h-5 text-white/70" />
+                  <VolumeX className="w-5 h-5 text-[var(--player-control-muted)]" />
                 ) : (
                   <Volume2 className="w-5 h-5" />
                 )}
@@ -265,12 +263,12 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                 value={isMuted ? 0 : volume}
                 onChange={handleVolumeChange}
                 aria-label="Volume slider"
-                style={{
-                  background: `linear-gradient(to right, #FFFFFF ${
-                    (isMuted ? 0 : volume) * 100
-                  }%, rgba(255, 255, 255, 0.25) ${(isMuted ? 0 : volume) * 100}%)`,
-                }}
-                className="w-14 sm:w-18 h-1 bg-white/30 rounded appearance-none cursor-pointer accent-white hidden sm:inline-block"
+                style={
+                  {
+                    '--volume-progress': `${(isMuted ? 0 : volume) * 100}%`,
+                  } as React.CSSProperties
+                }
+                className="player-volume-slider w-14 sm:w-18 h-1 bg-white/30 rounded appearance-none cursor-pointer accent-white hidden sm:inline-block"
               />
             </div>
 

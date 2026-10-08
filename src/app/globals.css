@@ -11,11 +11,19 @@
   --color-track: #E6E6E6;
   --color-progress: #6ABD8A;
   --color-marker: #485293;
+  --color-player-accent: #ED1D24;
 }
 
 :root {
   --text-dark: #1E293B;
   --bg-page: #F8FAFC;
+
+  /* Video Player control tokens */
+  --player-control-active: #FFFFFF;
+  --player-control-track: rgba(255, 255, 255, 0.25);
+  --player-control-muted: rgba(255, 255, 255, 0.7);
+  --player-control-hover: rgba(255, 255, 255, 0.8);
+  --player-play-accent: #ED1D24;
 }
 
 *,
@@ -67,6 +75,24 @@ html {
   max-width: 1320px;
   margin: 0 auto;
   padding: 24px 20px 60px;
+}
+
+/* Video Player slider styles */
+.player-progress-slider {
+  background: linear-gradient(
+    to right,
+    var(--player-control-active) var(--video-progress, 0%),
+    var(--player-control-track) var(--video-progress, 0%)
+  );
+}
+
+.player-volume-slider,
+.volume-slider {
+  background: linear-gradient(
+    to right,
+    var(--player-control-active) var(--volume-progress, 0%),
+    var(--player-control-track) var(--volume-progress, 0%)
+  );
 }
 
 @media (max-width: 640px) {

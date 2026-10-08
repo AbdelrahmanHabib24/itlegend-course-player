@@ -66,6 +66,11 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
       [sectionId]: !prev[sectionId],
     }));
   };
+
+  const clampedProgressLeft = `clamp(22px, ${Math.min(
+    Math.max(animatedProgress, 0),
+    100
+  )}%, calc(100% - 22px))`;
   
   return (
     <aside
@@ -86,9 +91,7 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
           {/* You marker */}
           <div
             className="absolute top-0 z-10 w-9 -translate-x-1/2 transition-[left] duration-700 ease-out"
-            style={{
-              left: `clamp(22px, ${Math.min(Math.max(animatedProgress, 0), 100)}%, calc(100% - 22px))`,
-            }}
+            style={{ left: clampedProgressLeft }}
           >
             <div className="flex flex-col items-center">
               {/* You circle */}
@@ -180,9 +183,7 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
               duration-700
               ease-out
             "
-            style={{
-              left: `clamp(22px, ${Math.min(Math.max(animatedProgress, 0), 100)}%, calc(100% - 22px))`,
-            }}
+            style={{ left: clampedProgressLeft }}
           >
             {animatedProgress}%
           </div>
