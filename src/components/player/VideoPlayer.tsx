@@ -175,9 +175,9 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
           <button
             type="button"
             aria-label="Play video"
-            className="w-18 h-18 sm:w-20 sm:h-20 rounded-full bg-white text-[#ED1D24] flex items-center justify-center shadow-xl hover:scale-105 transition-transform cursor-pointer border border-white/80"
+            className="w-18 h-18 sm:w-20 sm:h-20 rounded-full bg-white flex items-center justify-center shadow-xl hover:scale-105 transition-transform cursor-pointer border border-white/80"
           >
-            <Play className="w-7 h-7 sm:w-8 sm:h-8 fill-primary text-primary ml-1" />
+            <Play className="w-7 h-7 sm:w-8 sm:h-8 fill-[#ED1D24] text-[#ED1D24] ml-1" />
           </button>
         </div>
       )}
@@ -219,7 +219,14 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
             value={currentTime}
             onChange={handleSeek}
             aria-label="Video seek slider"
-            className="w-full h-1 bg-white/30 rounded-lg appearance-none cursor-pointer accent-primary group-hover/scrub:h-1.5 transition-all"
+            style={{
+              background: `linear-gradient(to right, #FFFFFF ${
+                duration > 0 ? (currentTime / duration) * 100 : 0
+              }%, rgba(255, 255, 255, 0.25) ${
+                duration > 0 ? (currentTime / duration) * 100 : 0
+              }%)`,
+            }}
+            className="w-full h-1 bg-white/30 rounded-lg appearance-none cursor-pointer accent-white group-hover/scrub:h-1.5 transition-all"
           />
         </div>
 
@@ -231,9 +238,9 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
               type="button"
               onClick={togglePlay}
               aria-label={isPlaying ? 'Pause' : 'Play'}
-              className="p-1 hover:text-primary transition-colors cursor-pointer"
+              className="p-1 text-white hover:text-white/80 transition-colors cursor-pointer"
             >
-              {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 fill-current" />}
+              {isPlaying ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current" />}
             </button>
 
             {/* Mute & Volume */}
@@ -242,10 +249,10 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                 type="button"
                 onClick={toggleMute}
                 aria-label={isMuted ? 'Unmute' : 'Mute'}
-                className="p-1 hover:text-primary transition-colors cursor-pointer"
+                className="p-1 text-white hover:text-white/80 transition-colors cursor-pointer"
               >
                 {isMuted || volume === 0 ? (
-                  <VolumeX className="w-5 h-5 text-red-400" />
+                  <VolumeX className="w-5 h-5 text-white/70" />
                 ) : (
                   <Volume2 className="w-5 h-5" />
                 )}
@@ -258,12 +265,17 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                 value={isMuted ? 0 : volume}
                 onChange={handleVolumeChange}
                 aria-label="Volume slider"
-                className="w-14 sm:w-18 h-1 bg-white/30 rounded appearance-none cursor-pointer accent-primary hidden sm:inline-block"
+                style={{
+                  background: `linear-gradient(to right, #FFFFFF ${
+                    (isMuted ? 0 : volume) * 100
+                  }%, rgba(255, 255, 255, 0.25) ${(isMuted ? 0 : volume) * 100}%)`,
+                }}
+                className="w-14 sm:w-18 h-1 bg-white/30 rounded appearance-none cursor-pointer accent-white hidden sm:inline-block"
               />
             </div>
 
             {/* Time Indicator */}
-            <span className="text-[11px] sm:text-xs text-slate-300 font-mono">
+            <span className="text-[11px] sm:text-xs text-white/80 font-mono">
               {formatTime(currentTime)} / {formatTime(duration)}
             </span>
           </div>
@@ -276,7 +288,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
               title={isWideMode ? 'Exit Wide View' : 'Wide / Theater Mode'}
               aria-label="Toggle Theater View"
               className={`p-1.5 rounded-md hover:bg-white/10 transition-colors hidden md:flex items-center gap-1.5 cursor-pointer ${
-                isWideMode ? 'text-primary bg-white/10' : 'text-slate-300'
+                isWideMode ? 'text-white bg-white/20' : 'text-white/80 hover:text-white'
               }`}
             >
               <Columns className="w-4 h-4" />
@@ -290,7 +302,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
               type="button"
               onClick={toggleFullscreen}
               aria-label={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
-              className="p-1.5 rounded-md hover:text-primary hover:bg-white/10 transition-colors cursor-pointer"
+              className="p-1.5 rounded-md text-white/80 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
             >
               {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
             </button>
