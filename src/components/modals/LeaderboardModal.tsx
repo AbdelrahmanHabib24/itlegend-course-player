@@ -1,10 +1,9 @@
-"use strict";
-"use client";
+'use client';
 
-import React from "react";
-import { X, Trophy } from "lucide-react";
-import { LEADERBOARD_USERS } from "@/data/leaderboardData";
-import { getMentorQuoteForProgress } from "@/data/mentorQuotes";
+import React from 'react';
+import { X, Trophy } from 'lucide-react';
+import { LEADERBOARD_USERS } from '@/data/leaderboardData';
+import { getMentorQuoteForProgress } from '@/data/mentorQuotes';
 
 interface LeaderboardModalProps {
   isOpen: boolean;
@@ -27,18 +26,18 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
       aria-modal="true"
       className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in"
     >
-      <div className="relative w-full max-w-lg bg-white rounded-2xl overflow-hidden shadow-2xl border border-slate-100 p-6 animate-slide-up max-h-[85vh] flex flex-col">
+      <div className="relative w-full max-w-lg bg-white rounded-2xl shadow-xl border border-slate-200/80 p-4 sm:p-6 animate-slide-up max-h-[88vh] flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-100 shrink-0">
+        <div className="flex items-center justify-between pb-3.5 mb-3.5 border-b border-slate-100 shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-500 flex items-center justify-center">
-              <Trophy className="w-5 h-5" />
+            <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 border border-amber-200/50">
+              <Trophy className="w-4.5 h-4.5" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-slate-900">
+              <h2 className="text-base font-bold text-slate-900 leading-tight">
                 Student Leaderboard
               </h2>
-              <p className="text-[11px] text-slate-500">
+              <p className="text-[11px] text-slate-500 mt-0.5">
                 Top learners by completed lessons & quiz points
               </p>
             </div>
@@ -48,92 +47,95 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
             type="button"
             onClick={onClose}
             aria-label="Close dialog"
-            className="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Motivational Message Area (Eng. Ali Shaheen) — Compact & Professional */}
+        {/* Motivational Message Area (Eng. Ali Shaheen) — Compact, Subtle & Professional */}
         <div
-          className="mb-4 p-3 rounded-xl bg-slate-50 border border-slate-200/80 shrink-0"
           dir="rtl"
+          className="mb-3.5 px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-200/70 shrink-0 text-right"
         >
-          <div className="flex items-center justify-between gap-2 mb-1.5">
-            <div className="flex items-center gap-1.5">
-              <span className="text-xs font-semibold text-slate-900">
-                رسالة تشجيعية من م. علي شاهين
-              </span>
-            </div>
-            <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-white text-emerald-800 border border-emerald-200/60 shadow-2xs">
+          <div className="flex items-center justify-between gap-2 mb-1">
+            <span className="text-[11px] font-medium text-slate-500">
+              رسالة تشجيعية من م. علي شاهين
+            </span>
+            <span className="text-[10px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/60">
               {mentorQuote.levelName}
             </span>
           </div>
           <p className="text-xs text-slate-700 leading-relaxed font-normal">
-            &ldquo;{mentorQuote.quote}&rdquo;{" "}
+            &ldquo;{mentorQuote.quote}&rdquo;
           </p>
         </div>
 
         {/* Scrollable Leaderboard List */}
-        <div className="overflow-y-auto space-y-2 pr-1 flex-1">
+        <div className="overflow-y-auto flex-1 divide-y divide-slate-100 pr-1 -mr-1">
           {LEADERBOARD_USERS.map((user) => {
             const isCurrentUser = user.isCurrentUser;
 
             return (
               <div
                 key={user.rank}
-                className={`p-2.5 sm:p-3 rounded-xl border flex items-center justify-between gap-3 transition-colors ${
+                className={`py-2.5 sm:py-3 px-2 sm:px-2.5 flex items-center justify-between gap-2.5 sm:gap-3 transition-colors ${
                   isCurrentUser
-                    ? "bg-emerald-50/70 border-emerald-300 ring-1 ring-emerald-200/50"
-                    : "bg-white border-slate-100 hover:bg-slate-50"
+                    ? 'bg-emerald-50/70 border border-emerald-200/80 rounded-lg my-1'
+                    : 'hover:bg-slate-50/60 rounded-lg'
                 }`}
               >
-                {/* Rank & User */}
-                <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                {/* Left: Rank, Avatar, Student Info */}
+                <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+                  {/* Rank */}
                   <div
-                    className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ${
+                    className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center font-bold text-[11px] sm:text-xs shrink-0 ${
                       user.rank === 1
-                        ? "bg-amber-400 text-slate-950 shadow-2xs"
+                        ? 'bg-amber-100 text-amber-800'
                         : user.rank === 2
-                          ? "bg-slate-200 text-slate-800"
+                          ? 'bg-slate-200 text-slate-700'
                           : user.rank === 3
-                            ? "bg-amber-700/80 text-white"
-                            : "bg-slate-100 text-slate-500"
+                            ? 'bg-amber-50 text-amber-900/80'
+                            : 'text-slate-400 font-semibold'
                     }`}
                   >
                     {user.rank}
                   </div>
 
+                  {/* Avatar */}
                   <img
                     src={user.avatar}
                     alt={user.name}
-                    className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover border border-slate-200 shrink-0"
+                    className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover border border-slate-200/80 shrink-0"
                   />
 
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      <p
-                        className={`text-xs font-bold truncate ${
-                          isCurrentUser ? "text-emerald-800" : "text-slate-800"
-                        }`}
-                      >
-                        {user.name}
-                      </p>
-                    </div>
-                    <p className="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
-                      <span>{user.completedLessons} Lessons</span>
-                      <span>•</span>
-                      <span className="text-amber-600 font-medium">
+                  {/* Name & Secondary Metadata */}
+                  <div className="min-w-0 flex-1">
+                    <p
+                      className={`text-xs sm:text-sm font-semibold truncate leading-snug ${
+                        isCurrentUser
+                          ? 'text-emerald-900 font-bold'
+                          : 'text-slate-900'
+                      }`}
+                    >
+                      {user.name}
+                    </p>
+                    <div className="text-[11px] text-slate-500 flex items-center gap-1.5 mt-0.5 min-w-0">
+                      <span className="shrink-0">{user.completedLessons} Lessons</span>
+                      <span className="text-slate-500 truncate text-[10.5px]">
                         {user.badge}
                       </span>
-                    </p>
+                    </div>
                   </div>
                 </div>
 
-                {/* Points */}
-                <div className="text-right shrink-0">
-                  <span className="text-xs font-bold text-slate-900 block font-mono">
-                    {user.points} pts
+                {/* Right: Points */}
+                <div className="text-right shrink-0 pl-1">
+                  <span className="text-xs sm:text-sm font-bold text-slate-900 tabular-nums">
+                    {user.points.toLocaleString()}
+                  </span>
+                  <span className="text-[10px] sm:text-[11px] text-slate-400 font-normal ml-1">
+                    pts
                   </span>
                 </div>
               </div>

@@ -1,5 +1,3 @@
-"use strict";
-
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { Course } from "@/types/course";
 

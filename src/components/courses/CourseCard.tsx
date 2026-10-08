@@ -1,4 +1,3 @@
-'use strict';
 import React from 'react';
 import Link from 'next/link';
 import { Course } from '@/types/course';

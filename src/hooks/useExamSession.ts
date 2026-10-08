@@ -1,5 +1,3 @@
-'use strict';
-
 import { useState, useEffect, useCallback } from 'react';
 import confetti from 'canvas-confetti';
 import { ExamData, ExamQuestion } from '@/types/course';
