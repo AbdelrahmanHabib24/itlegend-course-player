@@ -31,12 +31,14 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
   onOpenExamModal,
   onOpenPdfModal,
 }) => {
-  const [openSections, setOpenSections] = useState<Record<string, boolean>>(() => {
-    const initial: Record<string, boolean> = {};
-    curriculum.forEach((sec, idx) => {
-      initial[sec.id] = idx < 2;
-    });
-    return initial;
+  const [openSectionId, setOpenSectionId] = useState<string | null>(() => {
+    if (currentLessonId) {
+      const parent = curriculum.find((sec) =>
+        sec.lessons.some((l) => l.id === currentLessonId)
+      );
+      if (parent) return parent.id;
+    }
+    return curriculum[0]?.id || null;
   });
 
   useEffect(() => {
@@ -45,9 +47,7 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
       sec.lessons.some((l) => l.id === currentLessonId)
     );
     if (parentSection) {
-      setOpenSections((prev) =>
-        prev[parentSection.id] ? prev : { ...prev, [parentSection.id]: true }
-      );
+      setOpenSectionId(parentSection.id);
     }
   }, [currentLessonId, curriculum]);
 
@@ -61,10 +61,7 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
   }, [progressPercentage]);
 
   const toggleSection = (sectionId: string) => {
-    setOpenSections((prev) => ({
-      ...prev,
-      [sectionId]: !prev[sectionId],
-    }));
+    setOpenSectionId((prev) => (prev === sectionId ? null : sectionId));
   };
 
   const clampedProgressLeft = `clamp(22px, ${Math.min(
@@ -193,13 +190,7 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
       {/* Accordion Cards List  */}
       <div className="space-y-3.5 sm:space-y-4">
         {curriculum.map((section) => {
-          const isOpen = openSections[section.id] ?? false;
-          const isSectionCompleted =
-            section.lessons.length > 0 &&
-            section.lessons.every((l) => l.completed);
-          const isCurrentSection = section.lessons.some(
-            (l) => l.id === currentLessonId
-          );
+          const isOpen = openSectionId === section.id;
 
           return (
             <div
@@ -214,23 +205,12 @@ export const CurriculumSidebar: React.FC<CurriculumSidebarProps> = ({
                 className="w-full px-4.5 py-3.5 sm:px-5 sm:py-4 flex items-start justify-between text-left hover:bg-slate-50/40 transition-colors cursor-pointer"
               >
                 <div className="pr-3 flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="text-[14.5px] sm:text-[15px] font-semibold text-[#1F242F] leading-snug">
-                      <span className="lg:hidden">
-                        {section.mobileTitle || section.week}
-                      </span>
-                      <span className="hidden lg:inline">{section.week}</span>
-                    </h3>
-                    {isSectionCompleted ? (
-                      <span className="inline-flex items-center gap-1 text-[10.5px] font-medium text-[#65A98A] bg-[#F2FAF8] border border-[#E0F0EB] px-2 py-0.5 rounded-[3px]">
-                        <CheckCircle2 className="w-3 h-3 text-[#65A98A] stroke-[1.75]" /> Completed
-                      </span>
-                    ) : isCurrentSection ? (
-                      <span className="inline-flex items-center gap-1 text-[10.5px] font-medium text-[#65A98A] bg-[#F2FAF8] border border-[#E0F0EB] px-2 py-0.5 rounded-[3px]">
-                        <Play className="w-2.5 h-2.5 fill-current" /> Current Week
-                      </span>
-                    ) : null}
-                  </div>
+                  <h3 className="text-[14.5px] sm:text-[15px] font-semibold text-[#1F242F] leading-snug">
+                    <span className="lg:hidden">
+                      {section.mobileTitle || section.week}
+                    </span>
+                    <span className="hidden lg:inline">{section.week}</span>
+                  </h3>
                   <p className="hidden lg:block text-[12px] text-[#7A7D82] mt-1 leading-relaxed font-normal break-words">
                     {section.title}
                   </p>

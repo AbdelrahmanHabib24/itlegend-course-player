@@ -10,7 +10,6 @@ import {
   Maximize,
   Minimize,
   Columns,
-  Eye,
 } from 'lucide-react';
 import { LessonItem } from '@/types/course';
 import { useLessonPlayback } from '@/hooks/useLessonPlayback';
@@ -182,26 +181,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
         </div>
       )}
 
-      {/* Top Bar: Left lesson title badge & Right viewers pill */}
-      <div
-        className={`absolute inset-x-0 top-0 flex items-center justify-between text-white pointer-events-none transition-opacity duration-300 z-10 ${
-          isFullscreen
-            ? 'p-4 sm:p-6 bg-gradient-to-b from-black/80 via-black/30 to-transparent'
-            : 'p-3 sm:p-4'
-        } ${showControls || !isPlaying ? 'opacity-100' : 'opacity-0'}`}
-      >
-        <div className="bg-black/60 backdrop-blur-xs px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-white/10 flex items-center gap-2 max-w-[70%] sm:max-w-md min-w-0">
-          <span className="text-[11px] sm:text-xs font-semibold text-slate-100 truncate">
-            {currentLesson?.title || 'Course Overview'}
-          </span>
-        </div>
 
-        {/* Viewers Pill top-right */}
-        <div className="bg-black/75 backdrop-blur-xs px-2.5 py-1 rounded-full border border-white/10 flex items-center gap-1.5 text-xs font-medium text-white/90 shrink-0">
-          <Eye className="w-3.5 h-3.5 text-slate-300" />
-          <span className="text-[11px] font-bold">3</span>
-        </div>
-      </div>
 
       {/* Player Controls Bar at bottom */}
       <div
