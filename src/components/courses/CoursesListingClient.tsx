@@ -1,29 +1,25 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { BookOpen } from "lucide-react";
-
 import { Course } from "@/types/course";
 import { Header } from "@/components/layout/Header";
 import { CourseCard } from "@/components/courses/CourseCard";
 import { CourseFilter } from "@/components/courses/CourseFilter";
-import { LeaderboardModal } from "@/components/modals/LeaderboardModal";
+import {
+  getCourseStatus,
+  syncCourseWithProgress,
+} from "@/hooks/useCourseProgress";
 
 interface CoursesListingClientProps {
   initialCourses: Course[];
 }
 
-import { syncCourseWithProgress } from "@/hooks/useCourseProgress";
-
-const syncAllCourses = (courses: Course[]): Course[] =>
-  courses.map((course) => syncCourseWithProgress(course));
 
 const matchesSearchQuery = (course: Course, query: string): boolean => {
-  if (!query.trim()) {
-    return true;
-  }
+  const normalizedQuery = query.trim().toLowerCase();
 
-  const normalizedQuery = query.toLowerCase().trim();
+  if (!normalizedQuery) return true;
 
   return (
     course.title.toLowerCase().includes(normalizedQuery) ||
@@ -32,28 +28,10 @@ const matchesSearchQuery = (course: Course, query: string): boolean => {
   );
 };
 
-const matchesStatusFilter = (
-  course: Course,
-  status: string,
-): boolean => {
-  if (status === "all") {
-    return true;
-  }
 
-  if (status === "completed") {
-    return course.progress === 100;
-  }
+const matchesStatusFilter = (course: Course, status: string): boolean =>
+  status === "all" || getCourseStatus(course.progress) === status;
 
-  if (status === "in-progress") {
-    return course.progress > 0 && course.progress < 100;
-  }
-
-  if (status === "not-started") {
-    return course.progress === 0;
-  }
-
-  return true;
-};
 
 const filterCourses = (
   courses: Course[],
@@ -68,6 +46,8 @@ const filterCourses = (
       matchesSearchQuery(course, searchQuery),
   );
 
+
+
 export const CoursesListingClient = ({
   initialCourses,
 }: CoursesListingClientProps) => {
@@ -75,45 +55,40 @@ export const CoursesListingClient = ({
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [isLeaderboardOpen, setIsLeaderboardOpen] = useState(false);
 
-  useEffect(() => {
-    setCourses(syncAllCourses(initialCourses));
+ useEffect(() => {
+  const syncCourses = () => {
+    setCourses(initialCourses.map(syncCourseWithProgress));
+  };
 
-    const handleSync = () => {
-      setCourses(syncAllCourses(initialCourses));
-    };
+  syncCourses();
 
-    window.addEventListener("storage", handleSync);
-    window.addEventListener("focus", handleSync);
-    return () => {
-      window.removeEventListener("storage", handleSync);
-      window.removeEventListener("focus", handleSync);
-    };
-  }, [initialCourses]);
+  window.addEventListener("storage", syncCourses);
+  window.addEventListener("focus", syncCourses);
 
-  const categories = useMemo(
-    () =>
-      Array.from(
-        new Set(initialCourses.map((course) => course.category)),
-      ),
-    [initialCourses],
-  );
+  return () => {
+    window.removeEventListener("storage", syncCourses);
+    window.removeEventListener("focus", syncCourses);
+  };
+}, [initialCourses]);
 
-  const filteredCourses = useMemo(
-    () =>
-      filterCourses(
-        courses,
-        selectedCategory,
-        selectedStatus,
-        searchQuery,
-      ),
-    [courses, selectedCategory, selectedStatus, searchQuery],
-  );
+
+const categories = Array.from(
+  new Set(initialCourses.map((course) => course.category)),
+);
+
+const filteredCourses = filterCourses(
+  courses,
+  selectedCategory,
+  selectedStatus,
+  searchQuery,
+);
+
+ 
 
   return (
     <div className="min-h-screen bg-background flex flex-col text-slate-800">
-      <Header onOpenLeaderboard={() => setIsLeaderboardOpen(true)} />
+      <Header />
 
       <main className="flex-1 player-container w-full py-8">
         <section
@@ -170,10 +145,7 @@ export const CoursesListingClient = ({
         )}
       </main>
 
-      <LeaderboardModal
-        isOpen={isLeaderboardOpen}
-        onClose={() => setIsLeaderboardOpen(false)}
-      />
+     
     </div>
   );
 };

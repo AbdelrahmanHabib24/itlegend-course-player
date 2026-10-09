@@ -1,5 +1,6 @@
+
 import { useState, useMemo, useCallback, useEffect } from 'react';
-import { Course, LessonItem, CurriculumSection } from '@/types/course';
+import type { Course, LessonItem, CurriculumSection } from '@/types/course';
 
 const EMPTY_COMPLETED_LESSONS = new Set<string>();
 
@@ -16,59 +17,59 @@ export function useCourseNavigation({
   currentLessonId: explicitCurrentLessonId,
   onLessonComplete,
 }: UseCourseNavigationProps) {
+  // Get all lessons from the course.
   const allLessons = useMemo(() => {
     if (!course?.curriculum) return [];
-    return course.curriculum.flatMap((sec) => sec.lessons);
+
+    return course.curriculum.flatMap((section) => section.lessons);
   }, [course?.curriculum]);
 
+  // Determine the initial lesson.
   const initialLesson = useMemo<LessonItem | null>(() => {
-    if (!allLessons || allLessons.length === 0) return null;
+    if (allLessons.length === 0) return null;
 
     if (explicitCurrentLessonId) {
-      const explicit = allLessons.find((l) => l.id === explicitCurrentLessonId);
-      if (explicit) return explicit;
+      const explicitLesson = allLessons.find(
+        (lesson) => lesson.id === explicitCurrentLessonId,
+      );
+
+      if (explicitLesson) return explicitLesson;
     }
 
-    const currentMarked = allLessons.find((l) => l.isCurrent);
-    if (currentMarked) {
-      return currentMarked;
-    }
+    const currentMarked = allLessons.find((lesson) => lesson.isCurrent);
+    if (currentMarked) return currentMarked;
 
-    const uncompletedLesson = allLessons.find((l) => !completedLessonIds.has(l.id));
-    if (uncompletedLesson) {
-      return uncompletedLesson;
-    }
+    const uncompletedLesson = allLessons.find(
+      (lesson) => !completedLessonIds.has(lesson.id),
+    );
 
-    return allLessons[0];
+    return uncompletedLesson ?? allLessons[0];
   }, [allLessons, completedLessonIds, explicitCurrentLessonId]);
 
-  const [currentLesson, setCurrentLesson] = useState<LessonItem | null>(initialLesson);
+  const [currentLesson, setCurrentLesson] =
+    useState<LessonItem | null>(initialLesson);
 
   const courseSlug = course.slug;
+
+  // Reset the selected lesson when switching courses.
   useEffect(() => {
     setCurrentLesson(initialLesson);
+
+    // Intentionally reset only when the course changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [courseSlug]);
 
-  const currentIndex = useMemo(() => {
-    if (!currentLesson) return -1;
-    return allLessons.findIndex((l) => l.id === currentLesson.id);
-  }, [allLessons, currentLesson]);
+  const currentIndex = currentLesson
+    ? allLessons.findIndex((lesson) => lesson.id === currentLesson.id)
+    : -1;
 
   const currentLessonId = currentLesson?.id ?? '';
 
-  const nextLesson = useMemo(() => {
-    if (currentIndex !== -1 && currentIndex < allLessons.length - 1) {
-      return allLessons[currentIndex + 1];
-    }
-    return null;
-  }, [allLessons, currentIndex]);
+  const nextLesson =
+    currentIndex >= 0 ? allLessons[currentIndex + 1] ?? null : null;
 
-  const previousLesson = useMemo(() => {
-    if (currentIndex > 0) {
-      return allLessons[currentIndex - 1];
-    }
-    return null;
-  }, [allLessons, currentIndex]);
+  const previousLesson =
+    currentIndex > 0 ? allLessons[currentIndex - 1] : null;
 
   const selectLesson = useCallback((lesson: LessonItem) => {
     setCurrentLesson(lesson);
@@ -88,22 +89,24 @@ export function useCourseNavigation({
 
   const handleLessonEnded = useCallback(() => {
     if (!currentLesson) return;
-    if (onLessonComplete) {
-      onLessonComplete(currentLesson.id);
-    }
+
+    onLessonComplete?.(currentLesson.id);
+
     if (nextLesson) {
       setCurrentLesson(nextLesson);
     }
   }, [currentLesson, nextLesson, onLessonComplete]);
 
+  // Add current and completed status to curriculum lessons.
   const enrichedCurriculum = useMemo<CurriculumSection[]>(() => {
     if (!course?.curriculum) return [];
-    return course.curriculum.map((sec) => ({
-      ...sec,
-      lessons: sec.lessons.map((l) => ({
-        ...l,
-        isCurrent: currentLesson ? l.id === currentLesson.id : false,
-        completed: completedLessonIds.has(l.id),
+
+    return course.curriculum.map((section) => ({
+      ...section,
+      lessons: section.lessons.map((lesson) => ({
+        ...lesson,
+        isCurrent: lesson.id === currentLesson?.id,
+        completed: completedLessonIds.has(lesson.id),
       })),
     }));
   }, [course?.curriculum, currentLesson, completedLessonIds]);

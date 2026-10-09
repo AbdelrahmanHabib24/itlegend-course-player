@@ -1,6 +1,8 @@
-'use client';
+"use client";
 
-import React, { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect } from "react";
+import type { ChangeEvent, CSSProperties } from "react";
+
 import {
   Play,
   Pause,
@@ -8,27 +10,25 @@ import {
   VolumeX,
   Maximize,
   Minimize,
-  Columns,
-} from 'lucide-react';
-import { LessonItem } from '@/types/course';
-import { useLessonPlayback } from '@/hooks/useLessonPlayback';
+} from "lucide-react";
+
+import type { LessonItem } from "@/types/course";
+import { useLessonPlayback } from "@/hooks/useLessonPlayback";
+import { formatTime } from "@/utils/formatTime";
 
 interface VideoPlayerProps {
   currentLesson: LessonItem | null;
   courseThumbnail?: string;
-  isWideMode: boolean;
-  onToggleWideMode: () => void;
   onLessonEnded?: () => void;
 }
 
-export const VideoPlayer: React.FC<VideoPlayerProps> = ({
+export const VideoPlayer = ({
   currentLesson,
   courseThumbnail,
-  isWideMode,
-  onToggleWideMode,
   onLessonEnded,
-}) => {
+}: VideoPlayerProps) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const controlsTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const {
     videoRef,
@@ -45,150 +45,154 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
     seek,
     toggleMute,
     setPlayerVolume,
+    handlePlay,
+    handlePause,
     handleEnded,
-    formatTime,
-    setIsPlaying,
-    setHasStartedPlaying,
   } = useLessonPlayback({
     currentLesson,
     onLessonEnded,
   });
 
-  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
-  const [showControls, setShowControls] = useState<boolean>(true);
-  const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showControls, setShowControls] = useState(true);
 
-  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
-    seek(parseFloat(e.target.value));
+  const handleSeek = (e: ChangeEvent<HTMLInputElement>) => {
+    seek(Number(e.target.value));
   };
 
-  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPlayerVolume(parseFloat(e.target.value));
+  const handleVolumeChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setPlayerVolume(Number(e.target.value));
   };
 
- const toggleFullscreen = () => {
-  const element = containerRef.current;
-  if (!element) return;
+  const toggleFullscreen = () => {
+    const element = containerRef.current;
 
-  if (document.fullscreenElement) {
-    document.exitFullscreen?.().catch(() => {});
-    return;
-  }
+    if (!element) return;
 
-  if (element.requestFullscreen) {
+    if (document.fullscreenElement === element) {
+      document.exitFullscreen().catch(() => {});
+      return;
+    }
+
     element.requestFullscreen().catch(() => {});
-    return;
-  }
-
-  const video = videoRef.current as
-    | (HTMLVideoElement & { webkitEnterFullscreen?: () => void })
-    | null;
-
-  video?.webkitEnterFullscreen?.();
-};
+  };
 
   useEffect(() => {
-    const handleFsChange = () => {
-      setIsFullscreen(Boolean(document.fullscreenElement));
+    const handleFullscreenChange = () => {
+      setIsFullscreen(document.fullscreenElement === containerRef.current);
     };
-    document.addEventListener('fullscreenchange', handleFsChange);
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+
     return () => {
-      document.removeEventListener('fullscreenchange', handleFsChange);
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+
+      if (controlsTimeoutRef.current) {
+        clearTimeout(controlsTimeoutRef.current);
+      }
     };
   }, []);
 
+  const handleControlsActivity = () => {
+    setShowControls(true);
 
- const handleMouseMove = () => {
-  setShowControls(true);
+    if (controlsTimeoutRef.current) {
+      clearTimeout(controlsTimeoutRef.current);
+    }
 
-  if (controlsTimeoutRef.current) {
-    clearTimeout(controlsTimeoutRef.current);
-  }
+    controlsTimeoutRef.current = setTimeout(() => {
+      controlsTimeoutRef.current = null;
 
-  controlsTimeoutRef.current = setTimeout(() => {
-    if (isPlaying) {
+      if (videoRef.current && !videoRef.current.paused) {
+        setShowControls(false);
+      }
+    }, 2800);
+  };
+
+  const handleMouseLeave = () => {
+    if (controlsTimeoutRef.current) {
+      clearTimeout(controlsTimeoutRef.current);
+      controlsTimeoutRef.current = null;
+    }
+
+    if (videoRef.current && !videoRef.current.paused) {
       setShowControls(false);
     }
-  }, 2800);
-};
+  };
 
   return (
     <div
       ref={containerRef}
-      onMouseMove={handleMouseMove}
-      onTouchStart={handleMouseMove}
-      onMouseLeave={() => isPlaying && setShowControls(false)}
+      onMouseMove={handleControlsActivity}
+      onTouchStart={handleControlsActivity}
+      onMouseLeave={handleMouseLeave}
       className={`relative w-full bg-video overflow-hidden shadow-md group select-none transition-all duration-300 ${
         isFullscreen
-          ? 'h-full w-full rounded-none aspect-auto'
-          : 'aspect-video rounded-xl mobile-sticky-video'
+          ? "h-full w-full rounded-none aspect-auto"
+          : "aspect-video rounded-xl mobile-sticky-video"
       }`}
     >
-      {/* Real HTML5 Video Element — no poster, visible upon playback */}
+      {/* HTML5 Video */}
       <video
-        key={currentLesson?.id ?? 'empty-video'}
+        key={currentLesson?.id ?? "empty-video"}
         ref={videoRef}
         src={videoSrc}
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleLoadedMetadata}
         onDurationChange={handleLoadedMetadata}
-        onPlay={() => {
-          setIsPlaying(true);
-          setHasStartedPlaying(true);
-        }}
-        onPause={() => setIsPlaying(false)}
+        onPlay={handlePlay}
+        onPause={handlePause}
         onEnded={handleEnded}
         onClick={togglePlay}
         playsInline
         className={`w-full h-full cursor-pointer transition-opacity duration-150 ${
-          isFullscreen ? 'object-contain' : 'object-cover'
-        } ${hasStartedPlaying ? 'opacity-100' : 'opacity-0'}`}
+          isFullscreen ? "object-contain" : "object-cover"
+        } ${hasStartedPlaying ? "opacity-100" : "opacity-0"}`}
       />
 
-      {/* Course poster / thumbnail before playback starts */}
+      {/* Course Thumbnail */}
       {!hasStartedPlaying && (
         <div
-          onClick={togglePlay}
-          className="absolute inset-0 bg-video z-0 cursor-pointer overflow-hidden"
+          className="absolute inset-0 bg-video z-0 overflow-hidden"
           aria-hidden="true"
         >
           {courseThumbnail && (
             <img
               src={courseThumbnail}
               alt=""
-              className={`w-full h-full ${isFullscreen ? 'object-contain' : 'object-cover'}`}
+              className={`w-full h-full ${
+                isFullscreen ? "object-contain" : "object-cover"
+              }`}
             />
           )}
         </div>
       )}
 
-      {/* Center Play Button — Pure White Circle with play icon */}
+      {/* Center Play Button */}
       {!isPlaying && (
-        <div
+        <button
+          type="button"
           onClick={togglePlay}
-          className={`absolute inset-0 flex items-center justify-center cursor-pointer transition-opacity z-10 ${
-            hasStartedPlaying ? 'bg-black/40 backdrop-blur-[0.5px]' : 'bg-transparent'
+          aria-label="Play video"
+          className={`absolute inset-0 flex items-center justify-center cursor-pointer transition-opacity z-10 border-0 p-0 ${
+            hasStartedPlaying
+              ? "bg-black/40 backdrop-blur-[0.5px]"
+              : "bg-transparent"
           }`}
         >
-          <button
-            type="button"
-            aria-label="Play video"
-            className="w-18 h-18 sm:w-20 sm:h-20 rounded-full bg-white flex items-center justify-center shadow-xl hover:scale-105 transition-transform cursor-pointer border border-white/80"
-          >
+          <span className="w-18 h-18 sm:w-20 sm:h-20 rounded-full bg-white flex items-center justify-center shadow-xl transition-transform hover:scale-105 border border-white/80">
             <Play className="w-7 h-7 sm:w-8 sm:h-8 fill-[var(--player-play-accent)] text-[var(--player-play-accent)] ml-1" />
-          </button>
-        </div>
+          </span>
+        </button>
       )}
 
-
-
-      {/* Player Controls Bar at bottom */}
+      {/* Player Controls */}
       <div
         className={`absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent px-3 sm:px-4 py-2.5 sm:py-3 transition-opacity duration-300 flex flex-col gap-2 z-20 ${
-          isFullscreen ? 'pb-6 sm:pb-4' : ''
-        } ${showControls || !isPlaying ? 'opacity-100' : 'opacity-0'}`}
+          isFullscreen ? "pb-6 sm:pb-4" : ""
+        } ${showControls || !isPlaying ? "opacity-100" : "opacity-0"}`}
       >
-        {/* Progress scrub bar */}
+        {/* Progress Slider */}
         <div className="relative w-full flex items-center group/scrub cursor-pointer">
           <input
             type="range"
@@ -200,32 +204,38 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
             aria-label="Video seek slider"
             style={
               {
-                '--video-progress': `${duration > 0 ? (currentTime / duration) * 100 : 0}%`,
-              } as React.CSSProperties
+                "--video-progress": `${
+                  duration > 0 ? (currentTime / duration) * 100 : 0
+                }%`,
+              } as CSSProperties
             }
             className="player-progress-slider w-full h-1 bg-white/30 rounded-lg appearance-none cursor-pointer accent-white group-hover/scrub:h-1.5 transition-all"
           />
         </div>
 
-        {/* Buttons Row */}
+        {/* Controls Row */}
         <div className="flex items-center justify-between text-white text-xs">
           <div className="flex items-center gap-3 sm:gap-4">
-            {/* Play/Pause */}
+            {/* Play / Pause */}
             <button
               type="button"
               onClick={togglePlay}
-              aria-label={isPlaying ? 'Pause' : 'Play'}
+              aria-label={isPlaying ? "Pause" : "Play"}
               className="p-1 text-white hover:text-white/80 transition-colors cursor-pointer"
             >
-              {isPlaying ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current" />}
+              {isPlaying ? (
+                <Pause className="w-5 h-5 fill-current" />
+              ) : (
+                <Play className="w-5 h-5 fill-current" />
+              )}
             </button>
 
-            {/* Mute & Volume */}
+            {/* Volume */}
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={toggleMute}
-                aria-label={isMuted ? 'Unmute' : 'Mute'}
+                aria-label={isMuted ? "Unmute" : "Mute"}
                 className="p-1 text-white hover:text-white/80 transition-colors cursor-pointer"
               >
                 {isMuted || volume === 0 ? (
@@ -234,6 +244,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                   <Volume2 className="w-5 h-5" />
                 )}
               </button>
+
               <input
                 type="range"
                 min={0}
@@ -244,8 +255,8 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                 aria-label="Volume slider"
                 style={
                   {
-                    '--volume-progress': `${(isMuted ? 0 : volume) * 100}%`,
-                  } as React.CSSProperties
+                    "--volume-progress": `${(isMuted ? 0 : volume) * 100}%`,
+                  } as CSSProperties
                 }
                 className="player-volume-slider w-14 sm:w-18 h-1 bg-white/30 rounded appearance-none cursor-pointer accent-white hidden sm:inline-block"
               />
@@ -253,37 +264,24 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
 
             {/* Time Indicator */}
             <span className="text-[11px] sm:text-xs text-white/80 font-mono">
-              {formatTime(currentTime)} / {formatTime(duration)}
+              {formatTime(currentTime)} /{" "}
+              {duration > 0 ? formatTime(duration) : "--:--"}
             </span>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-3">
-            {/* Theater / Wide Mode toggle */}
-            <button
-              type="button"
-              onClick={onToggleWideMode}
-              title={isWideMode ? 'Exit Wide View' : 'Wide / Theater Mode'}
-              aria-label="Toggle Theater View"
-              className={`p-1.5 rounded-md hover:bg-white/10 transition-colors hidden md:flex items-center gap-1.5 cursor-pointer ${
-                isWideMode ? 'text-white bg-white/20' : 'text-white/80 hover:text-white'
-              }`}
-            >
-              <Columns className="w-4 h-4" />
-              <span className="text-[11px] font-medium hidden lg:inline">
-                {isWideMode ? 'Standard' : 'Wide View'}
-              </span>
-            </button>
-
-            {/* Fullscreen Maximize */}
-            <button
-              type="button"
-              onClick={toggleFullscreen}
-              aria-label={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
-              className="p-1.5 rounded-md text-white/80 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
-            >
-              {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
-            </button>
-          </div>
+          {/* Fullscreen */}
+          <button
+            type="button"
+            onClick={toggleFullscreen}
+            aria-label={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
+            className="p-1.5 rounded-md text-white/80 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+          >
+            {isFullscreen ? (
+              <Minimize className="w-4 h-4" />
+            ) : (
+              <Maximize className="w-4 h-4" />
+            )}
+          </button>
         </div>
       </div>
     </div>

@@ -1,4 +1,5 @@
 import { Course } from '@/types/course';
+import { SLUG_ALIASES } from '@/data/slugAliases';
 
 export const COURSES: Course[] = [
   {
@@ -526,7 +527,7 @@ export const COURSES: Course[] = [
           },
           {
             id: 'c2-l20',
-            title: 'Production Deployment Checklist (PDF)',
+            title: 'Production Deployment Checklist',
             type: 'pdf',
             duration: '10:00',
             completed: false,
@@ -662,7 +663,7 @@ export const COURSES: Course[] = [
           },
           {
             id: 'c3-l4',
-            title: 'Design System Specification (PDF)',
+            title: 'Design System Specification',
             type: 'pdf',
             duration: '10:00',
             completed: false,
@@ -830,7 +831,7 @@ export const COURSES: Course[] = [
           { id: 'c4-l9', title: 'TypeScript Compiler API & AST', type: 'video', duration: '28:00', completed: true, isCurrent: false, videoUrl: '/videos/typescript-patterns.mp4' },
           {
             id: 'c4-l10',
-            title: 'Enterprise Type Architecture (PDF)',
+            title: 'Enterprise Type Architecture',
             type: 'pdf',
             duration: '12:00',
             completed: false,
@@ -977,7 +978,7 @@ export const COURSES: Course[] = [
           { id: 'c5-l7', title: 'Service Workers & Stale-While-Revalidate', type: 'video', duration: '26:30', completed: true, isCurrent: false, videoUrl: '/videos/web-performance.mp4' },
           {
             id: 'c5-l8',
-            title: 'Lighthouse All-Green Final (PDF)',
+            title: 'Lighthouse All-Green Final',
             type: 'pdf',
             duration: '14:00',
             completed: true,
@@ -1123,7 +1124,7 @@ export const COURSES: Course[] = [
           },
           {
             id: 'c6-l6',
-            title: 'Full-Stack Architecture Guide (PDF)',
+            title: 'Full-Stack Architecture Guide',
             type: 'pdf',
             duration: '10:00',
             completed: false,
@@ -1166,18 +1167,13 @@ export const COURSES: Course[] = [
   },
 ];
 
+
 export function getCourseBySlug(slug: string): Course | undefined {
-  return COURSES.find((c) => {
-    if (c.slug === slug) return true;
-    // Support alternate/legacy slug aliases seamlessly
-    if (slug === 'uiux-design' && c.slug === 'ui-ux-design-systems') return true;
-    if (slug === 'ui-ux-design-systems' && c.slug === 'uiux-design') return true;
-    if (slug === 'typescript' && c.slug === 'typescript-enterprise') return true;
-    if (slug === 'typescript-enterprise' && c.slug === 'typescript') return true;
-    if (slug === 'web-performance' && c.slug === 'web-performance-vitals') return true;
-    if (slug === 'web-performance-vitals' && c.slug === 'web-performance') return true;
-    if (slug === 'full-stack' && c.slug === 'fullstack-mastery') return true;
-    if (slug === 'fullstack-mastery' && c.slug === 'full-stack') return true;
-    return false;
-  });
+  const course = COURSES.find((course) => course.slug === slug);
+
+  if (course) return course;
+
+  const alias = SLUG_ALIASES[slug];
+
+  return COURSES.find((course) => course.slug === alias);
 }

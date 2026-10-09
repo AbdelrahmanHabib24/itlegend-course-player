@@ -4,6 +4,7 @@ import React from 'react';
 import { ChevronLeft, Clock, Trophy } from 'lucide-react';
 import { ExamData } from '@/types/course';
 import { useExamSession } from '@/hooks/useExamSession';
+import { formatTime } from '@/utils/formatTime';
 
 interface ExamModalProps {
   isOpen: boolean;
@@ -31,7 +32,6 @@ export const ExamModal: React.FC<ExamModalProps> = ({
     prevQuestion,
     goToQuestion,
     submitExam,
-    formatTimer,
   } = useExamSession({
     isOpen,
     examData,
@@ -63,7 +63,7 @@ export const ExamModal: React.FC<ExamModalProps> = ({
             {/* Yellow Timer Badge matching Figma */}
             <div className="bg-[#FFD028] text-slate-900 font-extrabold px-3 py-1 rounded-md text-xs tracking-wider shadow-xs flex items-center gap-1.5">
               <Clock className="w-3 h-3 text-slate-800" />
-              <span>{formatTimer(timeLeft)}</span>
+              <span>{formatTime(timeLeft)}</span>
             </div>
           </div>
 
@@ -120,29 +120,29 @@ export const ExamModal: React.FC<ExamModalProps> = ({
                             key={option.id}
                             type="button"
                             onClick={() => selectOption(currentQuestion.id, option.id)}
-                        className={`w-full p-3 rounded-xl border text-left flex items-center gap-3 transition-all cursor-pointer ${
-                          isSelected
-                            ? 'bg-exam text-white border-exam shadow-sm font-semibold'
-                            : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
-                        }`}
-                      >
-                        <span
-                          className={`w-6 h-6 rounded-lg text-xs font-bold flex items-center justify-center shrink-0 border ${
-                            isSelected
-                              ? 'bg-white text-exam border-white'
-                              : 'bg-slate-100 text-slate-500 border-slate-200'
-                          }`}
-                        >
-                          {option.id}
-                        </span>
-                        <span className="text-xs sm:text-sm">{option.text}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </>
-            ) : null}
-          </div>
+                            className={`w-full p-3 rounded-xl border text-left flex items-center gap-3 transition-all cursor-pointer ${
+                              isSelected
+                                ? 'bg-exam text-white border-exam shadow-sm font-semibold'
+                                : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+                            }`}
+                          >
+                            <span
+                              className={`w-6 h-6 rounded-lg text-xs font-bold flex items-center justify-center shrink-0 border ${
+                                isSelected
+                                  ? 'bg-white text-exam border-white'
+                                  : 'bg-slate-100 text-slate-500 border-slate-200'
+                              }`}
+                            >
+                              {option.id}
+                            </span>
+                            <span className="text-xs sm:text-sm">{option.text}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </>
+                ) : null}
+              </div>
 
               {/* Navigation Controls */}
               <div className="flex items-center justify-between gap-3 mt-6 pt-4 border-t border-slate-100">

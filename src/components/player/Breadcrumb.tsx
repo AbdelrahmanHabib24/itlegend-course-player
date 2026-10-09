@@ -6,7 +6,7 @@ interface BreadcrumbProps {
   courseTitle: string;
 }
 
-export const Breadcrumb: React.FC<BreadcrumbProps> = ({ courseTitle }) => {
+export const Breadcrumb: React.FC<BreadcrumbProps> = () => {
   return (
     <nav aria-label="Breadcrumb" className="mb-3">
       <ol className="flex items-center flex-wrap gap-1.5 text-xs text-slate-500 font-medium">

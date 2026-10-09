@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
-import { LessonItem } from '@/types/course';
+import { useState, useRef, useEffect, useCallback } from "react";
+import type { LessonItem } from "@/types/course";
 
 interface UseLessonPlaybackProps {
   currentLesson: LessonItem | null;
@@ -12,82 +12,107 @@ export function useLessonPlayback({
 }: UseLessonPlaybackProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
-  const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [currentTime, setCurrentTime] = useState<number>(0);
-  const [duration, setDuration] = useState<number>(100);
-  const [isMuted, setIsMuted] = useState<boolean>(false);
-  const [volume, setVolume] = useState<number>(0.85);
-  const [hasStartedPlaying, setHasStartedPlaying] = useState<boolean>(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [isMuted, setIsMuted] = useState(false);
+  const [volume, setVolume] = useState(0.85);
+  const [hasStartedPlaying, setHasStartedPlaying] = useState(false);
 
-  // Video source: dynamic from selected lesson with fallback
-  const videoSrc = currentLesson?.videoUrl ;
+  const videoSrc = currentLesson?.videoUrl;
 
-  // Reset video state when switching lessons
+  // Reset video state when switching lessons.
   useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.currentTime = 0;
-      setCurrentTime(0);
-      setIsPlaying(false);
-      setHasStartedPlaying(false);
-      videoRef.current.load();
-    }
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.currentTime = 0;
+    setCurrentTime(0);
+    setDuration(0);
+    setIsPlaying(false);
+    setHasStartedPlaying(false);
   }, [currentLesson?.id, currentLesson?.videoUrl]);
 
+  // Toggle play and pause.
   const togglePlay = useCallback(() => {
-    if (!videoRef.current) return;
-    if (isPlaying) {
-      videoRef.current.pause();
-      setIsPlaying(false);
-    } else {
-      videoRef.current.play().catch(() => {});
-      setIsPlaying(true);
-      setHasStartedPlaying(true);
-    }
-  }, [isPlaying]);
+    const video = videoRef.current;
+    if (!video) return;
 
+    if (video.paused) {
+      video.play().catch(() => {});
+    } else {
+      video.pause();
+    }
+  }, []);
+
+  // Update current playback time.
   const handleTimeUpdate = useCallback(() => {
     if (!videoRef.current) return;
+
     setCurrentTime(videoRef.current.currentTime);
   }, []);
 
+  // Update duration and synchronize volume settings.
   const handleLoadedMetadata = useCallback(() => {
-    if (!videoRef.current) return;
-    setDuration(videoRef.current.duration || 100);
-  }, []);
+    const video = videoRef.current;
+    if (!video) return;
 
+    const videoDuration = video.duration;
+
+    setDuration(
+      Number.isFinite(videoDuration) && videoDuration > 0 ? videoDuration : 0,
+    );
+    video.volume = volume;
+    video.muted = isMuted;
+  }, [volume, isMuted]);
+
+  // Seek video.
   const seek = useCallback((time: number) => {
     if (!videoRef.current) return;
+
     videoRef.current.currentTime = time;
     setCurrentTime(time);
   }, []);
 
+  // Toggle mute.
   const toggleMute = useCallback(() => {
-    if (!videoRef.current) return;
+    const video = videoRef.current;
+    if (!video) return;
+
     const nextMuted = !isMuted;
-    videoRef.current.muted = nextMuted;
+
+    video.muted = nextMuted;
     setIsMuted(nextMuted);
   }, [isMuted]);
 
-  const setPlayerVolume = useCallback((val: number) => {
-    if (!videoRef.current) return;
-    videoRef.current.volume = val;
-    setVolume(val);
-    setIsMuted(val === 0);
+  // Change volume.
+  const setPlayerVolume = useCallback((value: number) => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const nextMuted = value === 0;
+
+    video.volume = value;
+    video.muted = nextMuted;
+
+    setVolume(value);
+    setIsMuted(nextMuted);
+  }, []);
+
+  // Sync state with native video events.
+  const handlePlay = useCallback(() => {
+    setIsPlaying(true);
+    setHasStartedPlaying(true);
+  }, []);
+
+  const handlePause = useCallback(() => {
+    setIsPlaying(false);
   }, []);
 
   const handleEnded = useCallback(() => {
     setIsPlaying(false);
-    if (onLessonEnded) {
-      onLessonEnded();
-    }
+    onLessonEnded?.();
   }, [onLessonEnded]);
-
-  const formatTime = useCallback((secs: number) => {
-    if (isNaN(secs)) return '00:00';
-    const m = Math.floor(secs / 60);
-    const s = Math.floor(secs % 60);
-    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-  }, []);
 
   return {
     videoRef,
@@ -104,9 +129,8 @@ export function useLessonPlayback({
     seek,
     toggleMute,
     setPlayerVolume,
+    handlePlay,
+    handlePause,
     handleEnded,
-    formatTime,
-    setIsPlaying,
-    setHasStartedPlaying,
   };
 }

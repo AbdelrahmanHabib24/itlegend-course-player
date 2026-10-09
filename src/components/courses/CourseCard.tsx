@@ -117,14 +117,9 @@ export const CourseCard: React.FC<CourseCardProps> = ({ course }) => {
                 : 'bg-slate-900 hover:bg-slate-800 text-white shadow-xs'
             }`}
           >
-            {isCompleted ? (
+            {isStarted ? (
               <>
-                Review Course
-                <ArrowRight className="w-4 h-4" />
-              </>
-            ) : isStarted ? (
-              <>
-                Continue Course
+                {isCompleted ? 'Review Course' : 'Continue Course'}
                 <ArrowRight className="w-4 h-4" />
               </>
             ) : (

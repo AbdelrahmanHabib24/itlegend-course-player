@@ -1,4 +1,5 @@
-import React from 'react';
+
+
 import { Search, ChevronDown } from 'lucide-react';
 
 interface CourseFilterProps {
@@ -11,7 +12,14 @@ interface CourseFilterProps {
   onSelectStatus: (status: string) => void;
 }
 
-export const CourseFilter: React.FC<CourseFilterProps> = ({
+const categoryButtonClassName = (isSelected: boolean) =>
+  `shrink-0 whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
+    isSelected
+      ? 'bg-accent text-white shadow-xs'
+      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+  }`;
+
+export const CourseFilter = ({
   categories,
   selectedCategory,
   onSelectCategory,
@@ -19,12 +27,16 @@ export const CourseFilter: React.FC<CourseFilterProps> = ({
   onSearchChange,
   selectedStatus,
   onSelectStatus,
-}) => {
+}: CourseFilterProps) => {
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-xs mb-8 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
       {/* Search Input */}
       <div className="relative flex-1 max-w-md">
-        <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+        <Search
+          className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"
+          aria-hidden="true"
+        />
+
         <input
           type="text"
           id="course-search"
@@ -37,35 +49,32 @@ export const CourseFilter: React.FC<CourseFilterProps> = ({
         />
       </div>
 
-      {/* Filter Tabs & Status - Single inline row */}
+      {/* Filter Tabs & Status */}
       <div className="flex items-center gap-2 overflow-x-auto min-w-0 max-w-full [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden py-0.5">
         <button
           type="button"
           onClick={() => onSelectCategory('All')}
-          className={`shrink-0 whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
-            selectedCategory === 'All'
-              ? 'bg-accent text-white shadow-xs'
-              : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-          }`}
+          aria-pressed={selectedCategory === 'All'}
+          className={categoryButtonClassName(selectedCategory === 'All')}
         >
           All Categories
         </button>
-        {categories.map((cat) => (
+
+        {categories.map((category) => (
           <button
-            key={cat}
+            key={category}
             type="button"
-            onClick={() => onSelectCategory(cat)}
-            className={`shrink-0 whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
-              selectedCategory === cat
-                ? 'bg-accent text-white shadow-xs'
-                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-            }`}
+            onClick={() => onSelectCategory(category)}
+            aria-pressed={selectedCategory === category}
+            className={categoryButtonClassName(
+              selectedCategory === category,
+            )}
           >
-            {cat}
+            {category}
           </button>
         ))}
 
-        {/* Status Dropdown - stays inline with category buttons */}
+        {/* Status Dropdown */}
         <div className="relative shrink-0 inline-flex items-center">
           <select
             id="status-filter"
@@ -80,6 +89,7 @@ export const CourseFilter: React.FC<CourseFilterProps> = ({
             <option value="completed">Completed</option>
             <option value="not-started">Not Started</option>
           </select>
+
           <ChevronDown
             className="w-3.5 h-3.5 text-slate-500 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none stroke-[1.75]"
             aria-hidden="true"

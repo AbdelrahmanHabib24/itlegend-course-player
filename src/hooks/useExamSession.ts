@@ -1,6 +1,9 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import confetti from 'canvas-confetti';
-import { ExamData, ExamQuestion } from '@/types/course';
+import type { ExamData, ExamQuestion } from '@/types/course';
+
+const DEFAULT_EXAM_DURATION_SECONDS = 900;
 
 interface UseExamSessionProps {
   isOpen: boolean;
@@ -13,52 +16,68 @@ export function useExamSession({
   examData,
   onExamComplete,
 }: UseExamSessionProps) {
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
-  const [selectedAnswers, setSelectedAnswers] = useState<Record<number, string>>({});
-  const [timeLeft, setTimeLeft] = useState<number>(examData?.durationSeconds || 900);
-  const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
-  const [score, setScore] = useState<number>(0);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [selectedAnswers, setSelectedAnswers] = useState<
+    Record<number, string>
+  >({});
+  const [timeLeft, setTimeLeft] = useState(
+    examData?.durationSeconds || DEFAULT_EXAM_DURATION_SECONDS,
+  );
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [score, setScore] = useState(0);
 
-  // Timer countdown
+  // Timer countdown.
   useEffect(() => {
-    if (!isOpen || isSubmitted) return;
-    const interval = setInterval(() => {
-      setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
+    if (!isOpen || isSubmitted || timeLeft <= 0) return;
+
+    const timer = setTimeout(() => {
+      setTimeLeft((prev) => Math.max(prev - 1, 0));
     }, 1000);
-    return () => clearInterval(interval);
-  }, [isOpen, isSubmitted]);
 
-  // Reset exam state and timer when modal opens or examData changes
+    return () => clearTimeout(timer);
+  }, [isOpen, isSubmitted, timeLeft]);
+
+  // Reset exam when modal opens or exam changes.
   useEffect(() => {
-    if (isOpen && examData) {
-      setCurrentQuestionIndex(0);
-      setIsSubmitted(false);
-      setSelectedAnswers({});
-      setScore(0);
-      setTimeLeft(examData.durationSeconds || 900);
-    }
+    if (!isOpen || !examData) return;
+
+    setCurrentQuestionIndex(0);
+    setIsSubmitted(false);
+    setSelectedAnswers({});
+    setScore(0);
+    setTimeLeft(
+      examData.durationSeconds || DEFAULT_EXAM_DURATION_SECONDS,
+    );
   }, [isOpen, examData?.id, examData?.durationSeconds]);
 
-  const totalQuestions = examData?.questions?.length || 0;
+  const totalQuestions = examData?.questions.length || 0;
+
   const safeIndex = Math.min(
     Math.max(currentQuestionIndex, 0),
-    Math.max(totalQuestions - 1, 0)
+    Math.max(totalQuestions - 1, 0),
   );
-  const currentQuestion: ExamQuestion | undefined = examData?.questions?.[safeIndex];
+
+  const currentQuestion: ExamQuestion | undefined =
+    examData?.questions[safeIndex];
 
   const selectOption = useCallback(
     (questionId: number, optionId: string) => {
       if (isSubmitted) return;
+
       setSelectedAnswers((prev) => ({
         ...prev,
         [questionId]: optionId,
       }));
     },
-    [isSubmitted]
+    [isSubmitted],
   );
 
   const nextQuestion = useCallback(() => {
-    setCurrentQuestionIndex((prev) => Math.min(prev + 1, totalQuestions - 1));
+    if (totalQuestions === 0) return;
+
+    setCurrentQuestionIndex((prev) =>
+      Math.min(prev + 1, totalQuestions - 1),
+    );
   }, [totalQuestions]);
 
   const prevQuestion = useCallback(() => {
@@ -66,52 +85,46 @@ export function useExamSession({
   }, []);
 
   const goToQuestion = useCallback(
-    (idx: number) => {
-      if (idx >= 0 && idx < totalQuestions) {
-        setCurrentQuestionIndex(idx);
+    (index: number) => {
+      if (index >= 0 && index < totalQuestions) {
+        setCurrentQuestionIndex(index);
       }
     },
-    [totalQuestions]
+    [totalQuestions],
   );
 
   const submitExam = useCallback(() => {
-    if (!examData) return;
-    let correctCount = 0;
-    examData.questions.forEach((q) => {
-      if (selectedAnswers[q.id] === q.correctOption) {
-        correctCount += 1;
-      }
-    });
+    if (!examData || isSubmitted || totalQuestions === 0) return;
+
+    const correctCount = examData.questions.filter(
+      (question) =>
+        selectedAnswers[question.id] === question.correctOption,
+    ).length;
 
     setScore(correctCount);
     setIsSubmitted(true);
-    if (onExamComplete) {
-      onExamComplete(correctCount, totalQuestions);
-    }
 
-    // Fire celebratory confetti on high score (>= 50%)
-    if (correctCount >= Math.ceil(totalQuestions / 2)) {
+    onExamComplete?.(correctCount, totalQuestions);
+
+    // Celebrate scores of 50% or higher.
+    if (correctCount / totalQuestions >= 0.5) {
       confetti({
         particleCount: 80,
         spread: 70,
         origin: { y: 0.6 },
       });
     }
-  }, [examData, onExamComplete, selectedAnswers, totalQuestions]);
+  }, [examData, isSubmitted, onExamComplete, selectedAnswers, totalQuestions]);
 
   const resetExam = useCallback(() => {
     setCurrentQuestionIndex(0);
     setIsSubmitted(false);
     setSelectedAnswers({});
     setScore(0);
-    setTimeLeft(examData?.durationSeconds || 900);
+    setTimeLeft(
+      examData?.durationSeconds || DEFAULT_EXAM_DURATION_SECONDS,
+    );
   }, [examData?.durationSeconds]);
-
-  const formatTimer = useCallback((seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  }, []);
 
   return {
     currentQuestionIndex,
@@ -127,6 +140,5 @@ export function useExamSession({
     goToQuestion,
     submitExam,
     resetExam,
-    formatTimer,
   };
 }

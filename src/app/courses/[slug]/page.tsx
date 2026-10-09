@@ -1,16 +1,21 @@
-import React from 'react';
-import { notFound } from 'next/navigation';
-import type { Metadata } from 'next';
-import { getCourseBySlug, COURSES } from '@/data/coursesData';
-import { CoursePlayerClient } from '@/components/player/CoursePlayerClient';
+import { notFound } from "next/navigation";
+import type { Metadata } from "next";
+
+import { getCourseBySlug, COURSES } from "@/data/coursesData";
+import { SLUG_ALIASES } from "@/data/slugAliases";
+import { CoursePlayerClient } from "@/components/player/CoursePlayerClient";
 
 interface CoursePageProps {
   params: Promise<{ slug: string }>;
 }
 
-export async function generateMetadata({ params }: CoursePageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: CoursePageProps): Promise<Metadata> {
   const { slug } = await params;
-  const course = getCourseBySlug(slug) || COURSES[0];
+  const course = getCourseBySlug(slug);
+
+  if (!course) notFound();
 
   return {
     title: `${course.title} | ITLegend Course Player`,
@@ -19,12 +24,11 @@ export async function generateMetadata({ params }: CoursePageProps): Promise<Met
 }
 
 export function generateStaticParams() {
-  const slugs = new Set<string>();
-  COURSES.forEach((course) => slugs.add(course.slug));
-  slugs.add('ui-ux-design-systems');
-  slugs.add('typescript-enterprise');
-  slugs.add('web-performance-vitals');
-  slugs.add('fullstack-mastery');
+  const slugs = new Set<string>([
+    ...COURSES.map((course) => course.slug),
+    ...Object.keys(SLUG_ALIASES),
+  ]);
+
   return Array.from(slugs).map((slug) => ({ slug }));
 }
 
@@ -32,9 +36,7 @@ export default async function CoursePage({ params }: CoursePageProps) {
   const { slug } = await params;
   const course = getCourseBySlug(slug);
 
-  if (!course) {
-    notFound();
-  }
+  if (!course) notFound();
 
-  return <CoursePlayerClient initialCourse={course} />;
+  return <CoursePlayerClient key={course.slug} initialCourse={course} />;
 }
