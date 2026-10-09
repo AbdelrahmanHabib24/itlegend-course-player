@@ -130,18 +130,16 @@ export const CoursePlayerClient: React.FC<CoursePlayerClientProps> = ({
     }
   };
 
-  // React ref-based smooth scroll handlers
   const scrollToCurriculum = () => {
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024;
-    const target = isMobile && mobileCurriculumRef.current
-      ? mobileCurriculumRef.current
-      : curriculumRef.current;
+  const target =
+    (window.innerWidth < 1024 ? mobileCurriculumRef.current : null) ??
+    curriculumRef.current;
 
-    target?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start',
-    });
-  };
+  target?.scrollIntoView({
+    behavior: "smooth",
+    block: "start",
+  });
+};
 
   const scrollToComments = () => {
     commentsRef.current?.scrollIntoView({

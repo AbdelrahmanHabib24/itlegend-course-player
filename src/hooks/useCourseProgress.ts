@@ -12,23 +12,23 @@ const SLUG_ALIASES: Record<string, string> = {
   "full-stack": "fullstack-mastery",
 };
 
-export function getStoredCompletedLessonIds(slug: string): string[] | null {
-  if (typeof window === "undefined") {
-    return null;
-  }
-
+export function getStoredCompletedLessonIds(
+  slug: string,
+): string[] | null {
   try {
-    let stored = localStorage.getItem(`itlegend_progress_${slug}`);
-    if (!stored && SLUG_ALIASES[slug]) {
-      stored = localStorage.getItem(`itlegend_progress_${SLUG_ALIASES[slug]}`);
-    }
+    const alias = SLUG_ALIASES[slug];
+    const stored =
+      localStorage.getItem(`itlegend_progress_${slug}`) ||
+      (alias
+        ? localStorage.getItem(`itlegend_progress_${alias}`)
+        : null);
 
-    if (!stored) {
-      return null;
-    }
+    if (!stored) return null;
 
     const parsed: unknown = JSON.parse(stored);
-    return Array.isArray(parsed) && parsed.every((id) => typeof id === "string")
+
+    return Array.isArray(parsed) &&
+      parsed.every((id) => typeof id === "string")
       ? parsed
       : null;
   } catch {
