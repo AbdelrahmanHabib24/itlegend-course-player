@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import React from 'react';
-import Link from 'next/link';
-import { BookOpen, User } from 'lucide-react';
+import React from "react";
+import Link from "next/link";
+import { BookOpen, User } from "lucide-react";
 
 interface HeaderProps {
   onOpenLeaderboard?: () => void;
@@ -21,14 +21,17 @@ export const Header: React.FC<HeaderProps> = ({ onOpenLeaderboard }) => {
           </Link>
         </div>
 
-        {/* Navigation: My Learning */}
-        <nav aria-label="Main Navigation" className="flex items-center justify-center">
+        {/* Navigation: Courses */}
+        <nav
+          aria-label="Main Navigation"
+          className="flex items-center justify-center"
+        >
           <Link
             href="/"
-            className="px-3 sm:px-3.5 py-2 rounded-lg text-sm font-medium text-slate-700 hover:text-primary hover:bg-slate-50 transition-colors flex items-center gap-2"
+            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium leading-none text-slate-700 transition-colors hover:bg-slate-50 hover:text-primary sm:px-3.5"
           >
-            <BookOpen className="w-4 h-4 text-slate-400" />
-            <span className="whitespace-nowrap">My Learning</span>
+            <BookOpen className="block h-4 w-4 shrink-0 text-slate-400" />
+            <span className="whitespace-nowrap leading-none">Courses</span>
           </Link>
         </nav>
 
